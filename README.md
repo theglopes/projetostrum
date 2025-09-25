@@ -11,10 +11,7 @@ The goal is to deliver a **digital game sales platform** that provides **easy ac
 - Prices displayed in local currency (BRL), with coupon and promotion support.  
 
 ## 🛠️ Technologies
-- **HTML, CSS, JavaScript** → frontend and user interface.  
-- **Node.js (Express)** → backend REST API.  
-- **MySQL** → relational database (for persistence).  
-- **AWS (EC2 / RDS / S3)** → cloud infrastructure for hosting, database, and file storage.  
+  
 
 ## 📌 Project Status
 🚧 In academic development.  
