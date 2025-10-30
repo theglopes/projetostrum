@@ -20,7 +20,7 @@
         <nav class="header-bottom">
             <a href="#">LOJA</a>
             <a href="#">COMUNIDADE</a>
-            <a href="#">SOBRE</a>
+            <a href="sobre.html">SOBRE</a>
             <a href="#">SUPORTE</a>
             <div class="icons">🛒 👤</div>
         </nav>
@@ -32,31 +32,66 @@
         <section class="destaques">
             <h2>DESTAQUES <span class="ver-mais">VER MAIS</span></h2>
             <div class="grid">
-                <div class="card grande"><img src="css/Imagens/jogo1.png"></div>
-                <div class="card"><img src="css/Imagens/jogo2.jpg"></div>
-                <div class="card"><img src="css/Imagens/jogo3.jpeg"></div>
-                <div class="card"><img src="css/Imagens/jogo4.png"></div>
-                <div class="card"><img src="css/Imagens/jogo5.png"></div>
+                <div class="card grande d1">
+                    <img src="css/Imagens/grand-theft-auto-6.png" alt="Grand Theft Auto 6">
+                    <div class="card-overlay">
+                        <div class="overlay-title">Grand Theft Auto 6</div>
+                        <div class="overlay-price">R$ 10,00</div>
+                        <button class="btn-add" type="button" aria-label="Adicionar ao carrinho">+</button>
+                    </div>
+                </div>
+                <div class="card d2">
+                    <img src="css/Imagens/metal-gear-solid-v-the-phantom-pain.jpg" alt="Metal Gear Solid V: The Phantom Pain">
+                    <div class="card-overlay">
+                        <div class="overlay-title">Metal Gear Solid V: The Phantom Pain</div>
+                        <div class="overlay-price">R$ 10,00</div>
+                        <button class="btn-add" type="button" aria-label="Adicionar ao carrinho">+</button>
+                    </div>
+                </div>
+                <div class="card d3">
+                    <img src="css/Imagens/alan-wake-2.jpeg" alt="Alan Wake 2">
+                    <div class="card-overlay">
+                        <div class="overlay-title">Alan Wake 2</div>
+                        <div class="overlay-price">R$ 10,00</div>
+                        <button class="btn-add" type="button" aria-label="Adicionar ao carrinho">+</button>
+                    </div>
+                </div>
+                <div class="card d4">
+                    <img src="css/Imagens/assassins-creed-mirage.png" alt="Assassin's Creed Mirage">
+                    <div class="card-overlay">
+                        <div class="overlay-title">Assassin's Creed Mirage</div>
+                        <div class="overlay-price">R$ 10,00</div>
+                        <button class="btn-add" type="button" aria-label="Adicionar ao carrinho">+</button>
+                    </div>
+                </div>
+                <div class="card d5">
+                    <img src="css/Imagens/dark-souls-remastered.png" alt="Dark Souls Remastered">
+                    <div class="card-overlay">
+                        <div class="overlay-title">Dark Souls Remastered</div>
+                        <div class="overlay-price">R$ 10,00</div>
+                        <button class="btn-add" type="button" aria-label="Adicionar ao carrinho">+</button>
+                    </div>
+                </div>
             </div>
         </section>
 
         <section class="jogados">
             <h2>MAIS JOGADOS NO MOMENTO</h2>
             <div class="cards">
-                <div class="card"><img src="css/Imagens/jogo6.jpg"></div>
-                <div class="card"><img src="css/Imagens/jogo7.jpeg"></div>
-                <div class="card"><img src="css/Imagens/jogo8.jpg"></div>
-                <div class="card"><img src="css/Imagens/jogo9.jpeg"></div>
+                <div class="card"><img src="css/Imagens/cyberpunk-2077.jpg"></div>
+                <div class="card"><img src="css/Imagens/dying-light-2-stay-human.jpeg"></div>
+                <div class="card"><img src="css/Imagens/detroit-become-human.jpg"></div>
+                <div class="card"><img src="css/Imagens/god-of-war.jpeg"></div>
             </div>
         </section>
 
         <section class="lancamentos">
             <h2>LANÇAMENTOS</h2>
             <div class="cards">
-                <div class="card"><img src="css/Imagens/jogo10.png"></div>
-                <div class="card"><img src="css/Imagens/jogo11.png"></div>
-                <div class="card"><img src="css/Imagens/jogo12.jpg"></div>
-                <div class="card"><img src="css/Imagens/jogo13.jpg"></div>
+                <div class="card"><img src="css/Imagens/elden-ring.png"></div>
+                <div class="card"><img src="css/Imagens/hogwarts-legacy.png"></div>
+                <div class="card"><img src="css/Imagens/hades.jpg"></div>
+                <div class="card"><img src="css/Imagens/grand-theft-auto-san-andreas.jpg"></div>
             </div>
         </section>
 
@@ -64,18 +99,249 @@
             <h2>NOVIDADES</h2>
             <div class="card grande"><img src="css/Imagens/Os jogos mais aguardados de 2026!.png"></div>
             <div class="cards">
-                <div class="card"><img src="css/Imagens/jogo14.jpg"></div>
-                <div class="card"><img src="css/Imagens/jogo15.png"></div>
-                <div class="card"><img src="css/Imagens/jogo16.jpg"></div>
-                <div class="card"><img src="css/Imagens/jogo17.png"></div>
+                <div class="card"><img src="css/Imagens/hollow-knight.jpg"></div>
+                <div class="card"><img src="css/Imagens/resident-evil-4.png"></div>
+                <div class="card"><img src="css/Imagens/red-dead-redemption-2.jpg"></div>
+                <div class="card"><img src="css/Imagens/the-last-of-us-part-1.png"></div>
             </div>
         </section>
+
     </main>
+
+    <div class="toast" id="toast">
+        <img src="css/Strum Logo Sem Fundo.png" alt="Strum">
+        <span>Adicionado com sucesso ao seu carrinho</span>
+    </div>
+
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-hidden="true" aria-label="Carrinho">
+        <div class="cart-header">
+            <h3>Seu Carrinho</h3>
+            <span class="cart-close" id="cart-close">✕</span>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <div class="cart-empty">Seu carrinho está vazio.</div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total"><span>Total</span><strong id="cart-total">R$ 0,00</strong></div>
+            <div class="cart-actions">
+                <button class="btn" id="cart-clear">Esvaziar</button>
+                <button class="btn btn-primary" id="cart-checkout">Pagar</button>
+            </div>
+        </div>
+    </aside>
 
     <footer>
         ©2025 Strum LTDA. Todos os direitos reservados.
     </footer>
 
-</body>
+    <script>
+        function slugify(s) {
+            return String(s || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
 
+        function createCardForGame(g, isLarge = false) {
+            const div = document.createElement('div');
+            div.className = 'card' + (isLarge ? ' grande' : '');
+            const img = document.createElement('img');
+
+            const baseSlug = slugify(g.nome || 'jogo');
+            const candidates = [];
+            if (g.imagem) candidates.push(g.imagem);
+            candidates.push(`css/Imagens/${baseSlug}.png`);
+            candidates.push(`css/Imagens/${baseSlug}.jpg`);
+            candidates.push(`css/Imagens/${baseSlug}.jpeg`);
+
+            const compactSlug = baseSlug.replace(/-s-/g, 's-');
+            if (compactSlug !== baseSlug) {
+                candidates.push(`css/Imagens/${compactSlug}.png`);
+                candidates.push(`css/Imagens/${compactSlug}.jpg`);
+                candidates.push(`css/Imagens/${compactSlug}.jpeg`);
+            }
+
+            let i = 0;
+            const tryNext = () => {
+                if (i >= candidates.length) return;
+                img.src = candidates[i++];
+            };
+            img.onerror = () => tryNext();
+            tryNext();
+
+            div.appendChild(img);
+            return div;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            const icons = document.querySelector('.header-bottom .icons');
+            if (icons) {
+                icons.innerHTML = '<a href="carrinho.html" class="icon icon-cart" aria-label="Carrinho" title="Carrinho">🛒</a>' +
+                                   ' <a href="login.html" class="icon icon-user" aria-label="Login ou Perfil" title="Login ou Perfil">👤</a>';
+            }
+            try {
+                const resp = await fetch('http://localhost:8000/games');
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const games = await resp.json();
+
+                const destaqueNamesLC = [
+                    'grand theft auto 6',
+                    'metal gear solid v: the phantom pain',
+                    'alan wake 2',
+                    "assassin's creed mirage",
+                    'dark souls remastered'
+                ];
+                const pool = games.filter(g => !destaqueNamesLC.includes((g.nome || '').toLowerCase()));
+
+                const jogados = document.querySelector('.jogados .cards');
+                if (jogados) {
+                    jogados.innerHTML = '';
+                    pool.slice(0, 4).forEach(g => jogados.appendChild(createCardForGame(g)));
+                }
+
+                const lanc = document.querySelector('.lancamentos .cards');
+                if (lanc) {
+                    lanc.innerHTML = '';
+                    pool.slice(4, 8).forEach(g => lanc.appendChild(createCardForGame(g)));
+                }
+
+                const nov = document.querySelector('.novidades .cards');
+                if (nov) {
+                    nov.innerHTML = '';
+                    pool.slice(8, 12).forEach(g => nov.appendChild(createCardForGame(g)));
+                }
+            } catch (e) {
+                console.error('Falha ao integrar com backend:', e);
+            }
+
+            const iconsFix = document.querySelector('.header-bottom .icons');
+            if (iconsFix) {
+
+                while (iconsFix.firstChild) iconsFix.removeChild(iconsFix.firstChild);
+                const cartA = document.createElement('a');
+                cartA.href = '#'; cartA.className = 'icon icon-cart';
+                cartA.setAttribute('aria-label','Carrinho'); cartA.title = 'Carrinho';
+                cartA.textContent = '\uD83D\uDED2'; 
+cartA.textContent = '\uD83D\uDED2';
+                const userA = document.createElement('a');
+                userA.href = 'login.html'; userA.className = 'icon icon-user';
+                userA.setAttribute('aria-label','Login ou Perfil'); userA.title = 'Login ou Perfil';
+                userA.textContent = '\uD83D\uDC64'; // 👤
+                iconsFix.appendChild(cartA);
+                iconsFix.appendChild(userA);
+            }
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            const closeBtn = document.getElementById('cart-close');
+            const itemsEl = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const clearBtn = document.getElementById('cart-clear');
+            const payBtn = document.getElementById('cart-checkout');
+            const loadCart = () => JSON.parse(localStorage.getItem('cart') || '[]');
+            const saveCart = (c) => localStorage.setItem('cart', JSON.stringify(c));
+            const money = (v) => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+            function openCart(){ drawer.classList.add('open'); overlay.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
+            function closeCart(){ drawer.classList.remove('open'); overlay.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); }
+            function renderCart(){
+                const cart = loadCart();
+                itemsEl.innerHTML = '';
+                if (!cart.length){ itemsEl.innerHTML = '<div class="cart-empty">Seu carrinho está vazio.</div>'; totalEl.textContent = 'R$ 0,00'; return; }
+                let total = 0;
+                cart.forEach((it, idx) => {
+                    const row = document.createElement('div'); row.className = 'cart-item';
+                    const img = document.createElement('img'); img.src = it.image; row.appendChild(img);
+                    const info = document.createElement('div'); info.className = 'info';
+                    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = it.name; info.appendChild(nm);
+                    const pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(it.price) + (it.qty>1?` ×${it.qty}`:''); info.appendChild(pr);
+                    row.appendChild(info);
+                    const rm = document.createElement('div'); rm.className = 'remove'; rm.textContent = 'Remover';
+                    rm.addEventListener('click', () => { const c = loadCart(); c.splice(idx,1); saveCart(c); renderCart(); });
+                    row.appendChild(rm);
+                    itemsEl.appendChild(row);
+                    total += it.price * (it.qty || 1);
+                });
+                totalEl.textContent = money(total);
+            }
+            function addToCart(item){
+                const c = loadCart();
+                const i = c.findIndex(x => x.name === item.name);
+                if (i>=0) c[i].qty = (c[i].qty||1) + 1; else c.push({...item, qty: 1});
+                saveCart(c); renderCart(); showToast();
+            }
+            const cartLink = document.querySelector('.icon-cart');
+            if (cartLink){ cartLink.addEventListener('click', (e)=>{ e.preventDefault(); openCart(); }); }
+            if (overlay) overlay.addEventListener('click', closeCart);
+            if (closeBtn) closeBtn.addEventListener('click', closeCart);
+            if (clearBtn) clearBtn.addEventListener('click', ()=>{ saveCart([]); renderCart(); });
+            if (payBtn) payBtn.addEventListener('click', ()=>{
+                const cart = loadCart();
+                if (!cart.length) { alert('Carrinho vazio.'); return; }
+                alert('Pagamento (demo): ' + cart.length + ' item(ns).');
+                saveCart([]); renderCart(); closeCart();
+            });
+            function getNameFromImageSrc(src){
+                const file = (src||'').split('/').pop().split('\\').pop();
+                const base = file.replace(/\.(png|jpe?g)$/i,'');
+                return base.replace(/-/g,' ').replace(/\b\w/g, m=>m.toUpperCase());
+            }
+            function decorateCard(card){
+                if (!card || card.querySelector('.card-overlay')) return;
+                if (card.classList.contains('grande') && card.closest('.novidades')) return;
+                const img = card.querySelector('img');
+                const price = 10.00;
+                const src = img ? img.getAttribute('src') : '';
+                const name = (img && img.getAttribute('alt')) ? img.getAttribute('alt') : getNameFromImageSrc(src);
+                const overlay = document.createElement('div');
+                overlay.className = 'card-overlay';
+                const titleEl = document.createElement('div');
+                titleEl.className = 'overlay-title';
+                titleEl.textContent = name;
+                const priceEl = document.createElement('div');
+                priceEl.className = 'overlay-price';
+                priceEl.textContent = price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+                const btn = document.createElement('button');
+                btn.className = 'btn-add btn-autogen';
+                btn.type = 'button';
+                btn.setAttribute('aria-label','Adicionar ao carrinho');
+                btn.textContent = '+';
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    addToCart({ name, price, image: src });
+                });
+                overlay.appendChild(titleEl);
+                overlay.appendChild(priceEl);
+                overlay.appendChild(btn);
+                card.appendChild(overlay);
+            }
+            function decorateCards(){
+                document.querySelectorAll('.badge-price, .btn-autogen').forEach(n => n.remove());
+                document.querySelectorAll('.card').forEach(decorateCard);
+                document.querySelectorAll('.card .btn-add').forEach(btn => {
+                    if (btn.__bound) return; btn.__bound = true;
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault(); e.stopPropagation();
+                        const card = btn.closest('.card');
+                        const img = card ? card.querySelector('img') : null;
+                        const src = img ? img.getAttribute('src') : '';
+                        const name = img ? (img.getAttribute('alt') || '') : '';
+                        const price = 10.00;
+                        addToCart({ name: name || 'Jogo', price, image: src });
+                    });
+                });
+            }
+            function showToast(){
+                const t = document.getElementById('toast');
+                if (!t) return;
+                t.classList.add('show');
+                clearTimeout(window.__toastTimer);
+                window.__toastTimer = setTimeout(()=> t.classList.remove('show'), 1600);
+            }
+            decorateCards();
+            renderCart();
+        });
+    </script>
+    </body>
 </html>
