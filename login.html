@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strum - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .form-card { max-width: 360px; width: 100%; background: #0f0f0f; border: 1px solid #222; border-radius: 8px; padding: 18px; }
+        .form-card label { display:block; color:#bbb; font-size:12px; margin: 10px 0 4px; }
+        .form-card input { width:100%; padding:10px 12px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
+        .form-card button { margin-top:14px; width:100%; padding:10px 12px; border-radius:6px; border:1px solid #9f52ff; background:#9f52ff; color:#fff; cursor:pointer; }
+        .form-card button:hover { filter: brightness(1.05); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+            </div>
+        </div>
+        <nav class="header-bottom">
+            <a href="index.html">LOJA</a>
+            <a href="#">COMUNIDADE</a>
+            <a href="sobre.html">SOBRE</a>
+            <a href="#">SUPORTE</a>
+            <div class="icons">
+                <a href="carrinho.html" class="icon icon-cart" aria-label="Carrinho" title="Carrinho">🛒</a>
+                <a href="login.html" class="icon icon-user" aria-label="Login ou Perfil" title="Login ou Perfil">👤</a>
+            </div>
+        </nav>
+    </header>
+
+    <main style="display:flex; justify-content:center; width:100%; padding: 20px 0;">
+        <section class="form-card">
+            <h1 style="font-size:18px; color:#fff; margin-bottom:8px;">Entrar</h1>
+            <label for="email">E-mail</label>
+            <input type="email" id="email" placeholder="voce@exemplo.com" />
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" placeholder="••••••••" />
+            <button type="button" onclick="alert('Login não implementado (demo).');">Entrar</button>
+        </section>
+    </main>
+
+    <footer>
+        ©2025 Strum LTDA. Todos os direitos reservados.
+    </footer>
+</body>
+</html>
+

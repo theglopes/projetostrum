@@ -6,6 +6,7 @@ public class Game {
     private double preco;
     private String plataforma;
     private boolean promocao;
+    private String imagem;
 
     public Game(int id, String nome, double preco, String plataforma, boolean promocao) {
         this.id = id;
@@ -13,6 +14,7 @@ public class Game {
         this.preco = preco;
         this.plataforma = plataforma;
         this.promocao = promocao;
+        this.imagem = null;
     }
 
     // Construtor mínimo (uso no Server se quiser apenas nome+promo)
@@ -20,11 +22,18 @@ public class Game {
         this(0, nome, 0.0, "PC", promocao);
     }
 
+    public Game(String nome, boolean promocao, String imagem) {
+        this(0, nome, 0.0, "PC", promocao);
+        this.imagem = imagem;
+    }
+
     public int getId() { return id; }
     public String getNome() { return nome; }
     public double getPreco() { return preco; }
     public String getPlataforma() { return plataforma; }
     public boolean isPromocao() { return promocao; }
+    public String getImagem() { return imagem; }
+    public void setImagem(String imagem) { this.imagem = imagem; }
 
     @Override
     public String toString() {

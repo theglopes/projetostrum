@@ -1,4 +1,4 @@
-/* ===== RESET ===== */
+
 * {
     margin: 0;
     padding: 0;
@@ -14,7 +14,7 @@ body {
     align-items: center;
 }
 
-/* ===== HEADER ===== */
+
 header {
     width: 1120px;
     max-width: 1200px;
@@ -26,7 +26,7 @@ header {
     margin-bottom: 10px;
 }
 
-/* Parte de cima com o logo centralizado */
+
 .header-top {
     display: flex;
     justify-content: center;
@@ -47,7 +47,7 @@ header {
     width: auto;
 }
 
-/* Parte de baixo com o menu */
+
 .header-bottom {
     display: flex;
     justify-content: center;
@@ -75,6 +75,81 @@ header {
     font-size: 18px;
 }
 
+.header-bottom .icons a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 14px;
+}
+
+.header-bottom .icons a:hover {
+    color: #9f52ff;
+}
+
+
+.cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+    z-index: 1000;
+}
+
+.cart-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.cart-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 360px;
+    max-width: 80vw;
+    height: 100vh;
+    background: #0f0f0f;
+    border-right: 1px solid #222;
+    box-shadow: 4px 0 18px #0008;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-drawer.open { transform: translateX(0); }
+
+.cart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid #222;
+}
+
+.cart-header h3 { font-size: 16px; color: #fff; }
+.cart-close { cursor: pointer; color: #bbb; }
+.cart-close:hover { color: #fff; }
+
+.cart-items { flex: 1; overflow-y: auto; padding: 10px 12px; }
+.cart-empty { color: #888; text-align: center; margin-top: 20px; }
+
+.cart-item { display: flex; gap: 10px; align-items: center; padding: 8px; border: 1px solid #222; border-radius: 8px; background: #111; margin-bottom: 10px; }
+.cart-item img { width: 56px; height: 36px; object-fit: cover; border-radius: 6px; }
+.cart-item .info { flex: 1; }
+.cart-item .name { color: #fff; font-size: 13px; }
+.cart-item .price { color: #9f52ff; font-size: 12px; }
+.cart-item .remove { color: #f66; cursor: pointer; font-size: 12px; }
+.cart-item .remove:hover { text-decoration: underline; }
+
+.cart-footer { border-top: 1px solid #222; padding: 12px 14px; }
+.cart-total { display: flex; justify-content: space-between; color: #fff; margin-bottom: 10px; }
+.cart-actions { display: flex; gap: 10px; }
+.btn { flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid #333; cursor: pointer; background: #111; color: #fff; }
+.btn-primary { background: #9f52ff; border-color: #9f52ff; }
+.btn-primary:hover { filter: brightness(1.05); }
+
 .banner {
   background-color: #9f52ff;
   width: 100%;
@@ -86,14 +161,14 @@ header {
   border-radius: 4px;
 }
 
-/* imagem dentro do banner */
+
 .banner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
 }
-/* ===== MAIN ===== */
+
 main {
     width: 100%;
     max-width: 1200px;
@@ -102,7 +177,7 @@ main {
     align-items: center;
 }
 
-/* ===== BANNER ===== */
+
 .banner {
     background-color: #9f52ff;
     width: 1120px;
@@ -116,7 +191,7 @@ main {
     margin-bottom: 50px;
 }
 
-/* ===== SEÇÕES ===== */
+
 section {
     width: 100%;
     padding: 0 40px;
@@ -149,7 +224,7 @@ section h2 {
     color: #fff;
 }
 
-/* ===== DESTAQUES ===== */
+
 .destaques .grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
@@ -157,18 +232,18 @@ section h2 {
     gap: 20px;
 }
 
-.destaques .grid div:first-child {
+.destaques .grid > .card:first-child {
     grid-row: span 2;
     height: 340px;
     border-radius: 10px;
 }
 
-.destaques .grid div:not(:first-child) {
+.destaques .grid > .card:not(:first-child) {
     height: 160px;
     border-radius: 10px;
 }
 
-/* ===== MAIS JOGADOS ===== */
+
 .jogados .cards,
 .lancamentos .cards,
 .novidades .cards {
@@ -187,7 +262,7 @@ section h2 {
     border-radius: 8px;
 }
 
-/* ===== NOVIDADES ===== */
+
 .novidades .card.grande {
     width: 100%;
     height: 240px;
@@ -195,12 +270,14 @@ section h2 {
     margin-bottom: 20px;
 }
 
-/* ===== CARD BASE ===== */
+
 .card {
   background-color: #d3d3d3;
   border-radius: 8px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 150px;
+  position: relative;
+  overflow: hidden; 
 }
 
 .card:hover {
@@ -212,11 +289,105 @@ section h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 8px; 
   display: block;
 }
 
-/* ===== FOOTER ===== */
+
+.card-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 30%, rgba(0,0,0,0.8) 100%);
+  border-radius: 0 0 8px 8px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .15s ease, transform .15s ease;
+  height: auto;
+  min-height: 30px;
+  z-index: 1;
+}
+
+.card:hover .card-overlay { opacity: 1; transform: translateY(0); }
+
+.overlay-title {
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.1;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.overlay-price {
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  background:#0000008c;
+  border:1px solid #9f52ff;
+  border-radius:6px;
+  padding: 2px 6px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  align-self: center;
+  box-sizing: border-box;
+}
+
+.btn-add {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #9f52ff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  flex: 0 0 auto; 
+}
+
+.btn-add:hover { filter: brightness(1.05); }
+
+
+.destaques .card .card-overlay { min-height: 32px; }
+.destaques .card.grande .card-overlay { min-height: 40px; }
+.destaques .card.grande .overlay-title { font-size: 14px; }
+
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  box-shadow: 0 6px 18px #0008;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 2000;
+}
+
+.toast img { height: 24px; width: auto; }
+.toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+
 footer {
     width: 100%;
     text-align: center;
@@ -227,7 +398,7 @@ footer {
     margin-top: 40px;
 }
 
-/* ===== SCROLLBAR ===== */
+
 ::-webkit-scrollbar {
     height: 6px;
 }
@@ -236,3 +407,4 @@ footer {
     background: #9f52ff;
     border-radius: 10px;
 }
+

@@ -1,0 +1,21 @@
+# Compilados
+/target/
+/out/
+/bin/
+
+# Maven/Wrapper caches
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/
+
+# IDEs
+*.iml
+.idea/
+.vscode/
+.classpath
+.project
+.settings/
+
+# SO
+.DS_Store
+Thumbs.db

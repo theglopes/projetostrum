@@ -240,7 +240,23 @@ cartA.textContent = '\uD83D\uDED2';
             const totalEl = document.getElementById('cart-total');
             const clearBtn = document.getElementById('cart-clear');
             const payBtn = document.getElementById('cart-checkout');
-            const loadCart = () => JSON.parse(localStorage.getItem('cart') || '[]');
+            const loadCart = () => {
+                try {
+                    const raw = JSON.parse(localStorage.getItem('cart') || '[]');
+                    if (!Array.isArray(raw)) return [];
+                    const unique = new Map();
+                    raw.forEach(entry => {
+                        if (!entry || !entry.name) return;
+                        if (!unique.has(entry.name)) {
+                            unique.set(entry.name, {...entry, qty: 1});
+                        }
+                    });
+                    return Array.from(unique.values());
+                } catch (err) {
+                    console.error('Falha ao carregar carrinho', err);
+                    return [];
+                }
+            };
             const saveCart = (c) => localStorage.setItem('cart', JSON.stringify(c));
             const money = (v) => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
             function openCart(){ drawer.classList.add('open'); overlay.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
@@ -268,8 +284,12 @@ cartA.textContent = '\uD83D\uDED2';
             function addToCart(item){
                 const c = loadCart();
                 const i = c.findIndex(x => x.name === item.name);
-                if (i>=0) c[i].qty = (c[i].qty||1) + 1; else c.push({...item, qty: 1});
-                saveCart(c); renderCart(); showToast();
+                if (i>=0) {
+                    showToast('voc\u00EA n\u00E3o pode adicionar itens repetidos no carrinho');
+                    return;
+                }
+                c.push({...item, qty: 1});
+                saveCart(c); renderCart(); showToast('Adicionado com sucesso ao seu carrinho');
             }
             const cartLink = document.querySelector('.icon-cart');
             if (cartLink){ cartLink.addEventListener('click', (e)=>{ e.preventDefault(); openCart(); }); }
@@ -332,12 +352,22 @@ cartA.textContent = '\uD83D\uDED2';
                     });
                 });
             }
-            function showToast(){
+            function showToast(message){
                 const t = document.getElementById('toast');
                 if (!t) return;
+                const textEl = t.querySelector('span');
+                if (textEl) {
+                    if (!t.__defaultMessage) t.__defaultMessage = textEl.textContent || '';
+                    textEl.textContent = message || t.__defaultMessage;
+                }
                 t.classList.add('show');
                 clearTimeout(window.__toastTimer);
-                window.__toastTimer = setTimeout(()=> t.classList.remove('show'), 1600);
+                window.__toastTimer = setTimeout(()=>{
+                    t.classList.remove('show');
+                    if (textEl && message && t.__defaultMessage) {
+                        textEl.textContent = t.__defaultMessage;
+                    }
+                }, 1600);
             }
             decorateCards();
             renderCart();
