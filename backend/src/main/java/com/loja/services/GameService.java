@@ -1,39 +1,101 @@
 package com.loja.services;
 
+import com.loja.db.Database;
 import com.loja.models.Game;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class GameService {
-    private final List<Game> jogos = new ArrayList<>();
-
-    public void adicionarGame(Game g) {
-        jogos.add(g);
-    }
 
     public List<Game> listarGames() {
-        return new ArrayList<>(jogos);
+        String sql = "SELECT id, name, price, image, promo FROM games ORDER BY name";
+        List<Game> jogos = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                jogos.add(mapGame(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar jogos", e);
+        }
+        return jogos;
     }
 
     public Optional<Game> buscarPorId(int id) {
-        return jogos.stream().filter(x -> x.getId() == id).findFirst();
+        String sql = "SELECT id, name, price, image, promo FROM games WHERE id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapGame(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar jogo por id", e);
+        }
+        return Optional.empty();
+    }
+
+    public void adicionarGame(Game g) {
+        String sql = "INSERT INTO games(name, price, image, promo) VALUES (?, ?, ?, ?)";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, g.getNome());
+            ps.setDouble(2, g.getPreco());
+            ps.setString(3, g.getImagem());
+            ps.setInt(4, g.isPromocao() ? 1 : 0);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao adicionar jogo", e);
+        }
     }
 
     public boolean removerGame(int id) {
-        return jogos.removeIf(g -> g.getId() == id);
+        String sql = "DELETE FROM games WHERE id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao remover jogo", e);
+        }
     }
 
     public List<Game> buscarPorPlataforma(String plataforma) {
-        List<Game> res = new ArrayList<>();
-        for (Game g : jogos) if (g.getPlataforma().equalsIgnoreCase(plataforma)) res.add(g);
-        return res;
+        // Como ainda não persistimos a plataforma, retornamos todos os jogos para fins de demonstração.
+        return listarGames();
     }
 
     public List<Game> emPromocao() {
-        List<Game> res = new ArrayList<>();
-        for (Game g : jogos) if (g.isPromocao()) res.add(g);
-        return res;
+        String sql = "SELECT id, name, price, image, promo FROM games WHERE promo = 1";
+        List<Game> jogos = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                jogos.add(mapGame(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar jogos em promoção", e);
+        }
+        return jogos;
+    }
+
+    private Game mapGame(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        String name = rs.getString("name");
+        double price = rs.getDouble("price");
+        String image = rs.getString("image");
+        boolean promo = rs.getInt("promo") == 1;
+        Game g = new Game(id, name, price, "PC", promo, image);
+        return g;
     }
 }

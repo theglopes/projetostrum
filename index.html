@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
@@ -18,11 +18,20 @@
         </div>
 
         <nav class="header-bottom">
-            <a href="#">LOJA</a>
-            <a href="#">COMUNIDADE</a>
-            <a href="sobre.html">SOBRE</a>
-            <a href="#">SUPORTE</a>
-            <div class="icons">🛒 👤</div>
+            <div class="nav-links">
+                <a href="#">LOJA</a>
+                <a href="#">COMUNIDADE</a>
+                <a href="sobre.html">SOBRE</a>
+                <a href="#">SUPORTE</a>
+            </div>
+            <div class="nav-actions">
+                <button type="button" class="nav-action icon-cart" aria-label="Abrir carrinho">Carrinho</button>
+                <button type="button" class="nav-action icon-login" id="btn-login" aria-haspopup="dialog">Login</button>
+                <div class="nav-user hidden" id="nav-user" aria-live="polite">
+                    <span id="nav-user-email"></span>
+                    <button type="button" class="nav-action nav-logout" id="btn-logout">Sair</button>
+                </div>
+            </div>
         </nav>
     </header>
 
@@ -86,7 +95,7 @@
         </section>
 
         <section class="lancamentos">
-            <h2>LANÇAMENTOS</h2>
+            <h2>LANAÇAMENTOS</h2>
             <div class="cards">
                 <div class="card"><img src="css/Imagens/elden-ring.png"></div>
                 <div class="card"><img src="css/Imagens/hogwarts-legacy.png"></div>
@@ -108,6 +117,31 @@
 
     </main>
 
+    <div class="auth-overlay hidden" id="auth-overlay" aria-hidden="true">
+        <div class="auth-dialog" role="dialog" aria-labelledby="auth-title">
+            <button type="button" class="auth-close" id="auth-close" aria-label="Fechar janela de login">&times;</button>
+            <h3 id="auth-title">Entrar</h3>
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-auth-tab="login">Entrar</button>
+                <button type="button" class="auth-tab" data-auth-tab="register">Criar conta</button>
+            </div>
+            <form class="auth-form" id="login-form">
+                <label for="login-email">E-mail</label>
+                <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" required>
+                <label for="login-password">Senha</label>
+                <input type="password" id="login-password" name="password" placeholder="Sua senha" required>
+                <button type="submit" class="auth-submit">Entrar</button>
+            </form>
+            <form class="auth-form hidden" id="register-form">
+                <label for="register-email">E-mail</label>
+                <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" required>
+                <label for="register-password">Senha</label>
+                <input type="password" id="register-password" name="password" placeholder="Crie uma senha" minlength="4" required>
+                <button type="submit" class="auth-submit">Criar conta</button>
+            </form>
+            <div class="auth-feedback" id="auth-feedback" role="status" aria-live="assertive"></div>
+        </div>
+    </div>
     <div class="toast" id="toast">
         <img src="css/Strum Logo Sem Fundo.png" alt="Strum">
         <span>Adicionado com sucesso ao seu carrinho</span>
@@ -117,10 +151,10 @@
     <aside class="cart-drawer" id="cart-drawer" aria-hidden="true" aria-label="Carrinho">
         <div class="cart-header">
             <h3>Seu Carrinho</h3>
-            <span class="cart-close" id="cart-close">✕</span>
+            <span class="cart-close" id="cart-close">🛒•</span>
         </div>
         <div class="cart-items" id="cart-items">
-            <div class="cart-empty">Seu carrinho está vazio.</div>
+            <div class="cart-empty">Seu carrinho esta vazio.</div>
         </div>
         <div class="cart-footer">
             <div class="cart-total"><span>Total</span><strong id="cart-total">R$ 0,00</strong></div>
@@ -132,123 +166,83 @@
     </aside>
 
     <footer>
-        ©2025 Strum LTDA. Todos os direitos reservados.
+        © 2025 Strum LTDA. Todos os direitos reservados.
     </footer>
 
-    <script>
-        function slugify(s) {
-            return String(s || '')
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)/g, '');
-        }
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE = 'http://localhost:8000';
+            const CART_KEY = 'cart';
+            const TOKEN_KEY = 'strum_token';
 
-        function createCardForGame(g, isLarge = false) {
-            const div = document.createElement('div');
-            div.className = 'card' + (isLarge ? ' grande' : '');
-            const img = document.createElement('img');
+            let backendGames = [];
+            const gameIndex = new Map();
+            let currentUser = null;
 
-            const baseSlug = slugify(g.nome || 'jogo');
-            const candidates = [];
-            if (g.imagem) candidates.push(g.imagem);
-            candidates.push(`css/Imagens/${baseSlug}.png`);
-            candidates.push(`css/Imagens/${baseSlug}.jpg`);
-            candidates.push(`css/Imagens/${baseSlug}.jpeg`);
-
-            const compactSlug = baseSlug.replace(/-s-/g, 's-');
-            if (compactSlug !== baseSlug) {
-                candidates.push(`css/Imagens/${compactSlug}.png`);
-                candidates.push(`css/Imagens/${compactSlug}.jpg`);
-                candidates.push(`css/Imagens/${compactSlug}.jpeg`);
-            }
-
-            let i = 0;
-            const tryNext = () => {
-                if (i >= candidates.length) return;
-                img.src = candidates[i++];
+            const els = {
+                cartDrawer: document.getElementById('cart-drawer'),
+                cartOverlay: document.getElementById('cart-overlay'),
+                cartClose: document.getElementById('cart-close'),
+                cartItems: document.getElementById('cart-items'),
+                cartTotal: document.getElementById('cart-total'),
+                cartClear: document.getElementById('cart-clear'),
+                cartCheckout: document.getElementById('cart-checkout'),
+                navCart: document.querySelector('.icon-cart'),
+                loginBtn: document.getElementById('btn-login'),
+                logoutBtn: document.getElementById('btn-logout'),
+                navUser: document.getElementById('nav-user'),
+                navUserEmail: document.getElementById('nav-user-email'),
+                authOverlay: document.getElementById('auth-overlay'),
+                authClose: document.getElementById('auth-close'),
+                authTabs: document.querySelectorAll('.auth-tab'),
+                loginForm: document.getElementById('login-form'),
+                registerForm: document.getElementById('register-form'),
+                authFeedback: document.getElementById('auth-feedback'),
+                authTitle: document.getElementById('auth-title'),
+                toast: document.getElementById('toast')
             };
-            img.onerror = () => tryNext();
-            tryNext();
 
-            div.appendChild(img);
-            return div;
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-
-            const icons = document.querySelector('.header-bottom .icons');
-            if (icons) {
-                icons.innerHTML = '<a href="carrinho.html" class="icon icon-cart" aria-label="Carrinho" title="Carrinho">🛒</a>' +
-                                   ' <a href="login.html" class="icon icon-user" aria-label="Login ou Perfil" title="Login ou Perfil">👤</a>';
-            }
-            try {
-                const resp = await fetch('http://localhost:8000/games');
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                const games = await resp.json();
-
-                const destaqueNamesLC = [
-                    'grand theft auto 6',
-                    'metal gear solid v: the phantom pain',
-                    'alan wake 2',
-                    "assassin's creed mirage",
-                    'dark souls remastered'
-                ];
-                const pool = games.filter(g => !destaqueNamesLC.includes((g.nome || '').toLowerCase()));
-
-                const jogados = document.querySelector('.jogados .cards');
-                if (jogados) {
-                    jogados.innerHTML = '';
-                    pool.slice(0, 4).forEach(g => jogados.appendChild(createCardForGame(g)));
-                }
-
-                const lanc = document.querySelector('.lancamentos .cards');
-                if (lanc) {
-                    lanc.innerHTML = '';
-                    pool.slice(4, 8).forEach(g => lanc.appendChild(createCardForGame(g)));
-                }
-
-                const nov = document.querySelector('.novidades .cards');
-                if (nov) {
-                    nov.innerHTML = '';
-                    pool.slice(8, 12).forEach(g => nov.appendChild(createCardForGame(g)));
-                }
-            } catch (e) {
-                console.error('Falha ao integrar com backend:', e);
+            function money(value) {
+                const number = Number(value) || 0;
+                return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             }
 
-            const iconsFix = document.querySelector('.header-bottom .icons');
-            if (iconsFix) {
-
-                while (iconsFix.firstChild) iconsFix.removeChild(iconsFix.firstChild);
-                const cartA = document.createElement('a');
-                cartA.href = '#'; cartA.className = 'icon icon-cart';
-                cartA.setAttribute('aria-label','Carrinho'); cartA.title = 'Carrinho';
-                cartA.textContent = '\uD83D\uDED2'; 
-cartA.textContent = '\uD83D\uDED2';
-                const userA = document.createElement('a');
-                userA.href = 'login.html'; userA.className = 'icon icon-user';
-                userA.setAttribute('aria-label','Login ou Perfil'); userA.title = 'Login ou Perfil';
-                userA.textContent = '\uD83D\uDC64'; // 👤
-                iconsFix.appendChild(cartA);
-                iconsFix.appendChild(userA);
+            function showToast(message) {
+                if (!els.toast) return;
+                const span = els.toast.querySelector('span');
+                if (span) {
+                    if (!els.toast.__defaultMessage) {
+                        els.toast.__defaultMessage = span.textContent || '';
+                    }
+                    span.textContent = message || els.toast.__defaultMessage;
+                }
+                els.toast.classList.add('show');
+                clearTimeout(window.__toastTimer);
+                window.__toastTimer = setTimeout(() => {
+                    els.toast.classList.remove('show');
+                    if (span && message && els.toast.__defaultMessage) {
+                        span.textContent = els.toast.__defaultMessage;
+                    }
+                }, 1600);
             }
-            const drawer = document.getElementById('cart-drawer');
-            const overlay = document.getElementById('cart-overlay');
-            const closeBtn = document.getElementById('cart-close');
-            const itemsEl = document.getElementById('cart-items');
-            const totalEl = document.getElementById('cart-total');
-            const clearBtn = document.getElementById('cart-clear');
-            const payBtn = document.getElementById('cart-checkout');
+
             const loadCart = () => {
                 try {
-                    const raw = JSON.parse(localStorage.getItem('cart') || '[]');
+                    const raw = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
                     if (!Array.isArray(raw)) return [];
                     const unique = new Map();
                     raw.forEach(entry => {
-                        if (!entry || !entry.name) return;
-                        if (!unique.has(entry.name)) {
-                            unique.set(entry.name, {...entry, qty: 1});
+                        if (!entry) return;
+                        const key = entry.gameId ?? entry.id ?? entry.name;
+                        if (!key) return;
+                        if (!unique.has(key)) {
+                            unique.set(key, {
+                                ...entry,
+                                qty: entry.qty && entry.qty > 0 ? entry.qty : 1,
+                                id: entry.id || 'item-' + key,
+                                gameId: typeof entry.gameId === 'number' ? entry.gameId : null,
+                                price: Number(entry.price) || 0
+                            });
                         }
                     });
                     return Array.from(unique.values());
@@ -257,120 +251,571 @@ cartA.textContent = '\uD83D\uDED2';
                     return [];
                 }
             };
-            const saveCart = (c) => localStorage.setItem('cart', JSON.stringify(c));
-            const money = (v) => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-            function openCart(){ drawer.classList.add('open'); overlay.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
-            function closeCart(){ drawer.classList.remove('open'); overlay.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); }
-            function renderCart(){
-                const cart = loadCart();
-                itemsEl.innerHTML = '';
-                if (!cart.length){ itemsEl.innerHTML = '<div class="cart-empty">Seu carrinho está vazio.</div>'; totalEl.textContent = 'R$ 0,00'; return; }
-                let total = 0;
-                cart.forEach((it, idx) => {
-                    const row = document.createElement('div'); row.className = 'cart-item';
-                    const img = document.createElement('img'); img.src = it.image; row.appendChild(img);
-                    const info = document.createElement('div'); info.className = 'info';
-                    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = it.name; info.appendChild(nm);
-                    const pr = document.createElement('div'); pr.className = 'price'; pr.textContent = money(it.price) + (it.qty>1?` ×${it.qty}`:''); info.appendChild(pr);
-                    row.appendChild(info);
-                    const rm = document.createElement('div'); rm.className = 'remove'; rm.textContent = 'Remover';
-                    rm.addEventListener('click', () => { const c = loadCart(); c.splice(idx,1); saveCart(c); renderCart(); });
-                    row.appendChild(rm);
-                    itemsEl.appendChild(row);
-                    total += it.price * (it.qty || 1);
-                });
-                totalEl.textContent = money(total);
+
+            const saveCart = (cart) => {
+                localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            };
+
+            function openCart() {
+                if (!els.cartDrawer || !els.cartOverlay) return;
+                els.cartDrawer.classList.add('open');
+                els.cartOverlay.classList.add('open');
+                els.cartDrawer.setAttribute('aria-hidden', 'false');
             }
-            function addToCart(item){
-                const c = loadCart();
-                const i = c.findIndex(x => x.name === item.name);
-                if (i>=0) {
-                    showToast('voc\u00EA n\u00E3o pode adicionar itens repetidos no carrinho');
+
+            function closeCart() {
+                if (!els.cartDrawer || !els.cartOverlay) return;
+                els.cartDrawer.classList.remove('open');
+                els.cartOverlay.classList.remove('open');
+                els.cartDrawer.setAttribute('aria-hidden', 'true');
+            }
+
+            function renderCart() {
+                if (!els.cartItems) return;
+                const cart = loadCart();
+                els.cartItems.innerHTML = '';
+                if (!cart.length) {
+                    els.cartItems.innerHTML = '<div class="cart-empty">Seu carrinho esta vazio.</div>';
+                    if (els.cartTotal) {
+                        els.cartTotal.textContent = 'R$ 0,00';
+                    }
                     return;
                 }
-                c.push({...item, qty: 1});
-                saveCart(c); renderCart(); showToast('Adicionado com sucesso ao seu carrinho');
+                let total = 0;
+                cart.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'cart-item';
+                    const img = document.createElement('img');
+                    img.src = item.image;
+                    img.alt = item.name;
+                    row.appendChild(img);
+                    const info = document.createElement('div');
+                    info.className = 'info';
+                    const name = document.createElement('div');
+                    name.className = 'name';
+                    name.textContent = item.name;
+                    info.appendChild(name);
+                    const price = document.createElement('div');
+                    price.className = 'price';
+                    price.textContent = money(item.price) + (item.qty > 1 ? ' x' + item.qty : '');
+                    info.appendChild(price);
+                    row.appendChild(info);
+                    const remove = document.createElement('div');
+                    remove.className = 'remove';
+                    remove.textContent = 'Remover';
+                    remove.addEventListener('click', () => {
+                        const current = loadCart();
+                        current.splice(idx, 1);
+                        saveCart(current);
+                        renderCart();
+                    });
+                    row.appendChild(remove);
+                    els.cartItems.appendChild(row);
+                    total += item.price * (item.qty || 1);
+                });
+                if (els.cartTotal) {
+                    els.cartTotal.textContent = money(total);
+                }
             }
-            const cartLink = document.querySelector('.icon-cart');
-            if (cartLink){ cartLink.addEventListener('click', (e)=>{ e.preventDefault(); openCart(); }); }
-            if (overlay) overlay.addEventListener('click', closeCart);
-            if (closeBtn) closeBtn.addEventListener('click', closeCart);
-            if (clearBtn) clearBtn.addEventListener('click', ()=>{ saveCart([]); renderCart(); });
-            if (payBtn) payBtn.addEventListener('click', ()=>{
+
+            function addToCart(item) {
                 const cart = loadCart();
-                if (!cart.length) { alert('Carrinho vazio.'); return; }
-                alert('Pagamento (demo): ' + cart.length + ' item(ns).');
-                saveCart([]); renderCart(); closeCart();
-            });
-            function getNameFromImageSrc(src){
-                const file = (src||'').split('/').pop().split('\\').pop();
-                const base = file.replace(/\.(png|jpe?g)$/i,'');
-                return base.replace(/-/g,' ').replace(/\b\w/g, m=>m.toUpperCase());
+                const exists = cart.some(existing => {
+                    if (item.gameId && existing.gameId) {
+                        return existing.gameId === item.gameId;
+                    }
+                    if (item.id && existing.id) {
+                        return existing.id === item.id;
+                    }
+                    return existing.name === item.name;
+                });
+                if (exists) {
+                    showToast('Voce ja adicionou este item ao carrinho.');
+                    return;
+                }
+                cart.push({ ...item, qty: 1 });
+                saveCart(cart);
+                renderCart();
+                showToast('Adicionado com sucesso ao seu carrinho');
             }
-            function decorateCard(card){
+
+            function findGameByName(name) {
+                if (!name) return null;
+                return gameIndex.get(name.trim().toLowerCase()) || null;
+            }
+
+            function syncCardWithBackend(card) {
+                const meta = ensureCardMeta(card);
+                if (meta.gameId) {
+                    const priceEl = card.querySelector('.overlay-price');
+                    if (priceEl) {
+                        priceEl.textContent = money(meta.price);
+                    }
+                }
+            }
+
+            function upgradeCartFromBackend() {
+                const cart = loadCart();
+                let changed = false;
+                cart.forEach(entry => {
+                    const game = findGameByName(entry.name);
+                    if (game) {
+                        if (entry.gameId !== game.id) {
+                            entry.gameId = game.id;
+                            entry.id = 'game-' + game.id;
+                            changed = true;
+                        }
+                        if (Math.abs((entry.price || 0) - Number(game.preco)) > 0.009) {
+                            entry.price = Number(game.preco);
+                            changed = true;
+                        }
+                    }
+                });
+                if (changed) {
+                    saveCart(cart);
+                    renderCart();
+                }
+            }
+
+            function getNameFromImageSrc(src) {
+                const file = (src || '').split('/').pop().split('\\').pop();
+                const base = file.replace(/\.(png|jpe?g|webp)$/i, '');
+                return base.replace(/[-_]/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
+            }
+
+            function ensureCardMeta(card) {
+                if (!card) {
+                    return { name: 'Jogo', price: 10, image: '', id: '', gameId: null };
+                }
+                const img = card.querySelector('img');
+                const src = img ? img.getAttribute('src') || '' : '';
+                let name = (card.dataset.productName || '').trim();
+                if (!name) {
+                    const overlayTitle = card.querySelector('.overlay-title');
+                    if (overlayTitle && overlayTitle.textContent) {
+                        name = overlayTitle.textContent.trim();
+                    }
+                }
+                if (!name) {
+                    name = getNameFromImageSrc(src);
+                }
+                if (name) {
+                    card.dataset.productName = name;
+                }
+
+                let price = Number(card.dataset.productPrice);
+                if (!Number.isFinite(price)) {
+                    const overlayPrice = card.querySelector('.overlay-price');
+                    if (overlayPrice && overlayPrice.textContent) {
+                        const raw = overlayPrice.textContent.replace(/[^\d,.-]/g, '').replace(',', '.');
+                        const parsed = Number(raw);
+                        if (Number.isFinite(parsed)) {
+                            price = parsed;
+                        }
+                    }
+                }
+                if (!Number.isFinite(price)) {
+                    price = 10;
+                }
+
+                const game = findGameByName(name);
+                let backendId = Number(card.dataset.backendId);
+                if (game) {
+                    backendId = Number(game.id);
+                    price = Number(game.preco);
+                }
+                if (!Number.isFinite(backendId)) {
+                    backendId = null;
+                }
+
+                let id = card.dataset.productId;
+                if (backendId) {
+                    id = 'game-' + backendId;
+                }
+                if (!id) {
+                    const base = name || src || card.id || '';
+                    id = base ? base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : '';
+                    if (!id) {
+                        id = 'card-' + Math.random().toString(36).slice(2, 10);
+                    }
+                }
+
+                card.dataset.productId = id;
+                card.dataset.productPrice = String(price);
+                if (backendId) {
+                    card.dataset.backendId = String(backendId);
+                } else {
+                    delete card.dataset.backendId;
+                }
+                if (img && name && !img.getAttribute('alt')) {
+                    img.setAttribute('alt', name);
+                }
+
+                return { name, price, image: src, id, gameId: backendId };
+            }
+
+            function decorateCard(card) {
                 if (!card || card.querySelector('.card-overlay')) return;
                 if (card.classList.contains('grande') && card.closest('.novidades')) return;
-                const img = card.querySelector('img');
-                const price = 10.00;
-                const src = img ? img.getAttribute('src') : '';
-                const name = (img && img.getAttribute('alt')) ? img.getAttribute('alt') : getNameFromImageSrc(src);
+                const meta = ensureCardMeta(card);
                 const overlay = document.createElement('div');
                 overlay.className = 'card-overlay';
                 const titleEl = document.createElement('div');
                 titleEl.className = 'overlay-title';
-                titleEl.textContent = name;
+                titleEl.textContent = meta.name;
                 const priceEl = document.createElement('div');
                 priceEl.className = 'overlay-price';
-                priceEl.textContent = price.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+                priceEl.textContent = money(meta.price);
                 const btn = document.createElement('button');
                 btn.className = 'btn-add btn-autogen';
                 btn.type = 'button';
-                btn.setAttribute('aria-label','Adicionar ao carrinho');
+                btn.setAttribute('aria-label', 'Adicionar ao carrinho');
                 btn.textContent = '+';
                 btn.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    addToCart({ name, price, image: src });
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const refreshed = ensureCardMeta(card);
+                    addToCart(refreshed);
                 });
+                btn.__bound = true;
                 overlay.appendChild(titleEl);
                 overlay.appendChild(priceEl);
                 overlay.appendChild(btn);
                 card.appendChild(overlay);
             }
-            function decorateCards(){
-                document.querySelectorAll('.badge-price, .btn-autogen').forEach(n => n.remove());
-                document.querySelectorAll('.card').forEach(decorateCard);
+
+            function decorateCards() {
+                const cards = Array.from(document.querySelectorAll('.card'));
+                cards.forEach((card, idx) => {
+                    if (!card.dataset.productId) {
+                        card.dataset.productId = 'card-' + idx;
+                    }
+                    ensureCardMeta(card);
+                    if (!card.querySelector('.card-overlay')) {
+                        decorateCard(card);
+                    }
+                });
                 document.querySelectorAll('.card .btn-add').forEach(btn => {
-                    if (btn.__bound) return; btn.__bound = true;
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault(); e.stopPropagation();
+                    if (btn.__bound) return;
+                    btn.__bound = true;
+                    btn.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
                         const card = btn.closest('.card');
-                        const img = card ? card.querySelector('img') : null;
-                        const src = img ? img.getAttribute('src') : '';
-                        const name = img ? (img.getAttribute('alt') || '') : '';
-                        const price = 10.00;
-                        addToCart({ name: name || 'Jogo', price, image: src });
+                        const meta = ensureCardMeta(card);
+                        addToCart(meta);
                     });
                 });
             }
-            function showToast(message){
-                const t = document.getElementById('toast');
-                if (!t) return;
-                const textEl = t.querySelector('span');
-                if (textEl) {
-                    if (!t.__defaultMessage) t.__defaultMessage = textEl.textContent || '';
-                    textEl.textContent = message || t.__defaultMessage;
+
+            function setToken(token) {
+                if (token) {
+                    localStorage.setItem(TOKEN_KEY, token);
                 }
-                t.classList.add('show');
-                clearTimeout(window.__toastTimer);
-                window.__toastTimer = setTimeout(()=>{
-                    t.classList.remove('show');
-                    if (textEl && message && t.__defaultMessage) {
-                        textEl.textContent = t.__defaultMessage;
-                    }
-                }, 1600);
             }
+
+            function getToken() {
+                return localStorage.getItem(TOKEN_KEY);
+            }
+
+            function clearToken() {
+                localStorage.removeItem(TOKEN_KEY);
+            }
+
+            async function api(path, options = {}) {
+                const opts = { ...options };
+                opts.headers = { ...(options.headers || {}) };
+                if (opts.body && !opts.headers['Content-Type']) {
+                    opts.headers['Content-Type'] = 'application/json';
+                }
+                const token = getToken();
+                if (token) {
+                    opts.headers['Authorization'] = 'Bearer ' + token;
+                }
+                const response = await fetch(API_BASE + path, opts);
+                const text = await response.text();
+                let data = null;
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (err) {
+                        console.warn('Resposta nao e JSON valido', err);
+                    }
+                }
+                if (!response.ok) {
+                    const message = data && data.error ? data.error : 'Erro ' + response.status;
+                    throw new Error(message);
+                }
+                return data;
+            }
+
+            function updateAuthUI() {
+                if (!els.loginBtn || !els.navUser || !els.navUserEmail) return;
+                if (currentUser && currentUser.email) {
+                    els.navUser.classList.remove('hidden');
+                    els.navUserEmail.textContent = currentUser.email;
+                    els.loginBtn.style.display = 'none';
+                } else {
+                    els.navUser.classList.add('hidden');
+                    els.navUserEmail.textContent = '';
+                    els.loginBtn.style.display = '';
+                }
+            }
+
+            async function refreshUser() {
+                const token = getToken();
+                if (!token) {
+                    currentUser = null;
+                    updateAuthUI();
+                    return;
+                }
+                try {
+                    const data = await api('/auth/me', { method: 'GET' });
+                    currentUser = data;
+                } catch (err) {
+                    console.warn('Sessão invalida', err);
+                    clearToken();
+                    currentUser = null;
+                }
+                updateAuthUI();
+            }
+
+            function setAuthFeedback(message, success = false) {
+                if (!els.authFeedback) return;
+                els.authFeedback.textContent = message || '';
+                els.authFeedback.classList.toggle('success', success);
+            }
+
+            function switchAuthTab(mode) {
+                if (!mode || !els.loginForm || !els.registerForm) return;
+                els.authTabs.forEach(tab => {
+                    const active = tab.dataset.authTab === mode;
+                    tab.classList.toggle('active', active);
+                });
+                els.loginForm.classList.toggle('hidden', mode !== 'login');
+                els.registerForm.classList.toggle('hidden', mode !== 'register');
+                if (els.authTitle) {
+                    els.authTitle.textContent = mode === 'register' ? 'Criar conta' : 'Entrar';
+                }
+                setAuthFeedback('');
+            }
+
+            function openAuthModal(mode = 'login', message = '') {
+                if (!els.authOverlay) return;
+                switchAuthTab(mode);
+                els.authOverlay.classList.remove('hidden');
+                els.authOverlay.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                if (message) {
+                    setAuthFeedback(message, false);
+                }
+            }
+
+            function closeAuthModal() {
+                if (!els.authOverlay) return;
+                els.authOverlay.classList.add('hidden');
+                els.authOverlay.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                setAuthFeedback('');
+            }
+
+            async function handleCheckout() {
+                const cart = loadCart();
+                if (!cart.length) {
+                    alert('Carrinho vazio.');
+                    return;
+                }
+                if (!currentUser) {
+                    closeCart();
+                    openAuthModal('login', 'Faça login para finalizar sua compra.');
+                    return;
+                }
+                const items = cart
+                    .map(item => ({ gameId: Number(item.gameId), quantity: item.qty || 1 }))
+                    .filter(item => Number.isInteger(item.gameId) && item.gameId > 0);
+                if (!items.length) {
+                    alert('Sincronizando itens com o catalogo. Tente novamente.');
+                    await loadCatalog();
+                    upgradeCartFromBackend();
+                    return;
+                }
+                try {
+                    if (els.cartCheckout) {
+                        els.cartCheckout.disabled = true;
+                    }
+                    const result = await api('/cart/checkout', {
+                        method: 'POST',
+                        body: JSON.stringify({ items })
+                    });
+                    showToast('Pedido registrado com sucesso!');
+                    saveCart([]);
+                    renderCart();
+                    closeCart();
+                } catch (err) {
+                    console.error(err);
+                    alert(err.message || 'Não foi possível concluir o checkout.');
+                } finally {
+                    if (els.cartCheckout) {
+                        els.cartCheckout.disabled = false;
+                    }
+                }
+            }
+
+            async function loadCatalog() {
+                try {
+                    const response = await fetch(API_BASE + '/games');
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        backendGames = data;
+                        gameIndex.clear();
+                        backendGames.forEach(game => {
+                            if (game && game.nome) {
+                                gameIndex.set(game.nome.trim().toLowerCase(), game);
+                            }
+                        });
+                        document.querySelectorAll('.card').forEach(syncCardWithBackend);
+                        upgradeCartFromBackend();
+                    }
+                } catch (err) {
+                    console.warn('Falha ao carregar catalogo do backend', err);
+                }
+            }
+
+            if (els.navCart) {
+                els.navCart.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openCart();
+                });
+            }
+            if (els.cartOverlay) {
+                els.cartOverlay.addEventListener('click', (e) => {
+                    if (e.target === els.cartOverlay) {
+                        closeCart();
+                    }
+                });
+            }
+            if (els.cartClose) {
+                els.cartClose.addEventListener('click', closeCart);
+            }
+            if (els.cartClear) {
+                els.cartClear.addEventListener('click', () => {
+                    saveCart([]);
+                    renderCart();
+                });
+            }
+            if (els.cartCheckout) {
+                els.cartCheckout.addEventListener('click', handleCheckout);
+            }
+
+            if (els.loginBtn) {
+                els.loginBtn.addEventListener('click', () => openAuthModal('login'));
+            }
+            if (els.logoutBtn) {
+                els.logoutBtn.addEventListener('click', async () => {
+                    try {
+                        await api('/auth/logout', { method: 'POST' });
+                    } catch (err) {
+                        console.warn('Falha ao encerrar sessão', err);
+                    }
+                    clearToken();
+                    currentUser = null;
+                    updateAuthUI();
+                    showToast('Voce saiu da conta.');
+                });
+            }
+            if (els.authClose) {
+                els.authClose.addEventListener('click', closeAuthModal);
+            }
+            if (els.authOverlay) {
+                els.authOverlay.addEventListener('click', (e) => {
+                    if (e.target === els.authOverlay) {
+                        closeAuthModal();
+                    }
+                });
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && els.authOverlay && !els.authOverlay.classList.contains('hidden')) {
+                    closeAuthModal();
+                }
+            });
+
+            els.authTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const mode = tab.dataset.authTab;
+                    switchAuthTab(mode);
+                });
+            });
+
+            if (els.loginForm) {
+                els.loginForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const form = event.currentTarget;
+                    const email = form.email.value.trim();
+                    const password = form.password.value;
+                    if (!email || !password) {
+                        setAuthFeedback('Preencha e-mail e senha.');
+                        return;
+                    }
+                    const submitBtn = form.querySelector('.auth-submit');
+                    try {
+                        submitBtn.disabled = true;
+                        setAuthFeedback('Entrando...');
+                        const data = await api('/auth/login', {
+                            method: 'POST',
+                            body: JSON.stringify({ email, password })
+                        });
+                        setToken(data.token);
+                        currentUser = { email: data.email };
+                        updateAuthUI();
+                        setAuthFeedback('Login realizado com sucesso!', true);
+                        form.reset();
+                        setTimeout(() => {
+                            closeAuthModal();
+                        }, 700);
+                    } catch (err) {
+                        setAuthFeedback(err.message || 'Não foi possível entrar.');
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+
+            if (els.registerForm) {
+                els.registerForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const form = event.currentTarget;
+                    const email = form.email.value.trim();
+                    const password = form.password.value;
+                    if (!email || !password) {
+                        setAuthFeedback('Preencha e-mail e senha.');
+                        return;
+                    }
+                    const submitBtn = form.querySelector('.auth-submit');
+                    try {
+                        submitBtn.disabled = true;
+                        setAuthFeedback('Criando conta...');
+                        await api('/auth/register', {
+                            method: 'POST',
+                            body: JSON.stringify({ email, password })
+                        });
+                        form.reset();
+                        setAuthFeedback('Conta criada! Faça login para continuar.', true);
+                        switchAuthTab('login');
+                    } catch (err) {
+                        setAuthFeedback(err.message || 'Não foi possível criar a conta.');
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+
             decorateCards();
             renderCart();
+            refreshUser();
+            loadCatalog();
         });
     </script>
     </body>

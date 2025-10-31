@@ -1,4 +1,4 @@
 com\loja\server\Server.class
-com\loja\services\GameService.class
 com\loja\utils\ConsoleUtils.class
 com\loja\models\Game.class
+com\loja\services\GameService.class
