@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
@@ -56,6 +57,8 @@ public final class Database {
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     email TEXT NOT NULL UNIQUE,
                     password_hash TEXT NOT NULL,
+                    role TEXT NOT NULL DEFAULT 'USER',
+                    plan TEXT NOT NULL DEFAULT 'FREE',
                     created_at TEXT NOT NULL
                 )
             """);
@@ -101,6 +104,24 @@ public final class Database {
                     FOREIGN KEY (game_id) REFERENCES games(id)
                 )
             """);
+
+            st.execute("""
+                CREATE TABLE IF NOT EXISTS developer_requests (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL UNIQUE,
+                    studio_name TEXT NOT NULL,
+                    cnpj TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'PENDING',
+                    created_at INTEGER NOT NULL,
+                    updated_at INTEGER NOT NULL,
+                    resolved_by INTEGER,
+                    resolved_at INTEGER,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (resolved_by) REFERENCES users(id) ON DELETE SET NULL
+                )
+            """);
+
+            ensureUsersSchemaUpgrades(conn);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao inicializar banco de dados", e);
         }
@@ -158,5 +179,30 @@ public final class Database {
 
     public static long unixNow() {
         return Instant.now().getEpochSecond();
+    }
+
+    private static void ensureUsersSchemaUpgrades(Connection conn) throws SQLException {
+        if (!hasColumn(conn, "users", "role")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'USER'");
+            }
+        }
+        if (!hasColumn(conn, "users", "plan")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("ALTER TABLE users ADD COLUMN plan TEXT NOT NULL DEFAULT 'FREE'");
+            }
+        }
+    }
+
+    private static boolean hasColumn(Connection conn, String table, String column) throws SQLException {
+        String pragma = "PRAGMA table_info(" + table + ")";
+        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(pragma)) {
+            while (rs.next()) {
+                if (column.equalsIgnoreCase(rs.getString("name"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

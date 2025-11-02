@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+.hidden {
+    display: none !important;
+}
+
 body {
     background-color: #0d0d0d;
     color: #fff;
@@ -572,5 +576,262 @@ footer {
 
 .auth-feedback.success {
     color: #65ffb0;
+}
+
+.nav-action.nav-profile.active {
+    background: #9f52ff;
+    border-color: #9f52ff;
+    color: #0d0d0d;
+}
+
+.profile-main {
+    width: 100%;
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 1120px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 32px 40px 80px;
+}
+
+.profile-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.profile-heading h1 {
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+.profile-status {
+    font-size: 13px;
+    color: #9f52ff;
+    min-height: 18px;
+}
+
+.profile-status.error {
+    color: #ff6b6b;
+}
+
+.profile-status.success {
+    color: #52ffb0;
+}
+
+.profile-card {
+    background: linear-gradient(130deg, rgba(159, 82, 255, 0.16), rgba(13, 17, 33, 0.92));
+    border: 1px solid #242842;
+    border-radius: 18px;
+    padding: 32px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+}
+
+.profile-card-content h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.profile-info {
+    display: grid;
+    gap: 16px;
+}
+
+.profile-row {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+    color: #d9dbf5;
+}
+
+.profile-row dt {
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    color: #9f52ff;
+}
+
+.profile-row dd {
+    margin: 0;
+    color: #f4f5ff;
+}
+
+.library-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.library-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.library-header h2 {
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.library-count {
+    font-size: 13px;
+    color: #9f52ff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.library-empty {
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px dashed #2d3252;
+    background: rgba(19, 22, 41, 0.8);
+    text-align: center;
+    font-size: 14px;
+    color: #b3b7dc;
+}
+
+.library-empty.hidden {
+    display: none;
+}
+
+.library-empty a {
+    color: #9f52ff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.library-empty a:hover {
+    text-decoration: underline;
+}
+
+.library-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.library-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background: #151a2c;
+    overflow: hidden;
+    border: 1px solid rgba(159, 82, 255, 0.18);
+    box-shadow: 0 22px 44px rgba(0, 0, 0, 0.38);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.library-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 26px 52px rgba(0, 0, 0, 0.45);
+}
+
+.library-card-image {
+    position: relative;
+    width: 100%;
+    padding-top: 56%;
+    overflow: hidden;
+    background: #101426;
+}
+
+.library-card-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.library-card-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.library-card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.library-card-body h3 {
+    font-size: 16px;
+    color: #f5f6ff;
+    line-height: 1.4;
+}
+
+.library-card-badge {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(159, 82, 255, 0.45);
+    background: rgba(159, 82, 255, 0.12);
+    color: #d7c0ff;
+    white-space: nowrap;
+}
+
+.library-card-badge.promo {
+    border-color: rgba(125, 255, 128, 0.6);
+    background: rgba(125, 255, 128, 0.14);
+    color: #7dff80;
+}
+
+.library-card-price {
+    font-size: 14px;
+    color: #9f52ff;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+}
+
+.form-image-preview {
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px dashed #2d2d2d;
+    background: #111111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-image-preview img {
+    max-width: 100%;
+    max-height: 160px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 24px 20px 60px;
+    }
+
+    .profile-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .profile-card {
+        padding: 24px;
+    }
+
+    .library-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
 }
 

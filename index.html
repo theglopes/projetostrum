@@ -29,6 +29,7 @@
                 <button type="button" class="nav-action icon-login" id="btn-login" aria-haspopup="dialog">Login</button>
                 <div class="nav-user hidden" id="nav-user" aria-live="polite">
                     <span id="nav-user-email"></span>
+                    <a href="perfil.html" class="nav-action nav-profile" id="btn-profile">Perfil</a>
                     <button type="button" class="nav-action nav-logout" id="btn-logout">Sair</button>
                 </div>
             </div>
@@ -174,6 +175,7 @@
             const API_BASE = 'http://localhost:8000';
             const CART_KEY = 'cart';
             const TOKEN_KEY = 'strum_token';
+            const LIBRARY_KEY = 'strum_library';
 
             let backendGames = [];
             const gameIndex = new Map();
@@ -190,6 +192,7 @@
                 navCart: document.querySelector('.icon-cart'),
                 loginBtn: document.getElementById('btn-login'),
                 logoutBtn: document.getElementById('btn-logout'),
+                profileLink: document.getElementById('btn-profile'),
                 navUser: document.getElementById('nav-user'),
                 navUserEmail: document.getElementById('nav-user-email'),
                 authOverlay: document.getElementById('auth-overlay'),
@@ -255,6 +258,29 @@
             const saveCart = (cart) => {
                 localStorage.setItem(CART_KEY, JSON.stringify(cart));
             };
+
+            function saveLibrarySnapshot(library) {
+                if (!library) return;
+                const games = Array.isArray(library) ? library : (library.games || []);
+                try {
+                    const payload = {
+                        games: games.map(game => ({
+                            id: game.id,
+                            nome: game.nome,
+                            preco: game.preco,
+                            imagem: game.imagem
+                        })),
+                        updatedAt: Date.now()
+                    };
+                    localStorage.setItem(LIBRARY_KEY, JSON.stringify(payload));
+                } catch (err) {
+                    console.warn('Falha ao salvar biblioteca local', err);
+                }
+            }
+
+            function clearLibrarySnapshot() {
+                localStorage.removeItem(LIBRARY_KEY);
+            }
 
             function openCart() {
                 if (!els.cartDrawer || !els.cartOverlay) return;
@@ -549,16 +575,37 @@
                 return data;
             }
 
+            async function syncLibrary() {
+                if (!getToken()) {
+                    clearLibrarySnapshot();
+                    return;
+                }
+                try {
+                    const data = await api('/users/library', { method: 'GET' });
+                    const games = Array.isArray(data)
+                        ? data
+                        : (data && Array.isArray(data.games) ? data.games : []);
+                    if (games.length) {
+                        saveLibrarySnapshot(games);
+                    }
+                } catch (err) {
+                    console.warn('Falha ao sincronizar biblioteca', err);
+                }
+            }
+
             function updateAuthUI() {
-                if (!els.loginBtn || !els.navUser || !els.navUserEmail) return;
-                if (currentUser && currentUser.email) {
-                    els.navUser.classList.remove('hidden');
-                    els.navUserEmail.textContent = currentUser.email;
-                    els.loginBtn.style.display = 'none';
-                } else {
-                    els.navUser.classList.add('hidden');
-                    els.navUserEmail.textContent = '';
-                    els.loginBtn.style.display = '';
+                if (!els.navUser || !els.navUserEmail) return;
+                const logged = currentUser && currentUser.email;
+                els.navUser.classList.toggle('hidden', !logged);
+                els.navUserEmail.textContent = logged ? currentUser.email : '';
+                if (els.loginBtn) {
+                    els.loginBtn.style.display = logged ? 'none' : '';
+                }
+                if (els.profileLink) {
+                    els.profileLink.style.display = logged ? '' : 'none';
+                    if (!logged) {
+                        els.profileLink.classList.remove('active');
+                    }
                 }
             }
 
@@ -572,9 +619,11 @@
                 try {
                     const data = await api('/auth/me', { method: 'GET' });
                     currentUser = data;
+                    await syncLibrary();
                 } catch (err) {
                     console.warn('Sessão invalida', err);
                     clearToken();
+                    clearLibrarySnapshot();
                     currentUser = null;
                 }
                 updateAuthUI();
@@ -647,6 +696,9 @@
                         method: 'POST',
                         body: JSON.stringify({ items })
                     });
+                    if (result && result.library) {
+                        saveLibrarySnapshot(result.library);
+                    }
                     showToast('Pedido registrado com sucesso!');
                     saveCart([]);
                     renderCart();
@@ -768,7 +820,12 @@
                             body: JSON.stringify({ email, password })
                         });
                         setToken(data.token);
-                        currentUser = { email: data.email };
+                        await syncLibrary();
+                        currentUser = {
+                            email: data.email,
+                            role: data.role,
+                            plan: data.plan
+                        };
                         updateAuthUI();
                         setAuthFeedback('Login realizado com sucesso!', true);
                         form.reset();

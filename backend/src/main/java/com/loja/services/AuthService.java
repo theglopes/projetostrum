@@ -15,6 +15,10 @@ import java.util.Optional;
 public class AuthService {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final long SESSION_TTL_SECONDS = 60L * 60L * 24L; // 24h
+    private static final String DEFAULT_ROLE = "USER";
+    private static final String DEFAULT_PLAN = "FREE";
+    private static final String DEFAULT_ADMIN_EMAIL = "guilherme@strum.com";
+    private static final String DEFAULT_ADMIN_PASSWORD = "Strum@Admin123";
 
     public Optional<User> register(String email, String password) {
         String normalized = normalizeEmail(email);
@@ -23,17 +27,20 @@ public class AuthService {
         }
 
         String hashed = PasswordUtils.hashPassword(password);
-        String sql = "INSERT INTO users(email, password_hash, created_at) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO users(email, password_hash, role, plan, created_at) VALUES (?, ?, ?, ?, ?)";
+        long now = Database.unixNow();
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, normalized);
             ps.setString(2, hashed);
-            ps.setLong(3, Database.unixNow());
+            ps.setString(3, DEFAULT_ROLE);
+            ps.setString(4, DEFAULT_PLAN);
+            ps.setLong(5, now);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
                     int id = keys.getInt(1);
-                    return Optional.of(new User(id, normalized, hashed, Database.unixNow()));
+                    return Optional.of(new User(id, normalized, hashed, now, DEFAULT_ROLE, DEFAULT_PLAN));
                 }
             }
             return Optional.empty();
@@ -49,7 +56,7 @@ public class AuthService {
             return Optional.empty();
         }
 
-        String sql = "SELECT id, email, password_hash, created_at FROM users WHERE email = ?";
+        String sql = "SELECT id, email, password_hash, role, plan, created_at FROM users WHERE email = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, normalized);
@@ -61,7 +68,9 @@ public class AuthService {
                             rs.getInt("id"),
                             rs.getString("email"),
                             hash,
-                            rs.getLong("created_at")
+                            rs.getLong("created_at"),
+                            rs.getString("role"),
+                            rs.getString("plan")
                         ));
                     }
                 }
@@ -94,7 +103,7 @@ public class AuthService {
             return Optional.empty();
         }
         String sql = """
-            SELECT u.id, u.email, u.password_hash, u.created_at
+            SELECT u.id, u.email, u.password_hash, u.created_at, u.role, u.plan
             FROM sessions s
             JOIN users u ON u.id = s.user_id
             WHERE s.token = ? AND s.expires_at > ?
@@ -109,7 +118,9 @@ public class AuthService {
                         rs.getInt("id"),
                         rs.getString("email"),
                         rs.getString("password_hash"),
-                        rs.getLong("created_at")
+                        rs.getLong("created_at"),
+                        rs.getString("role"),
+                        rs.getString("plan")
                     ));
                 }
             }
@@ -117,6 +128,54 @@ public class AuthService {
             throw new RuntimeException("Erro ao validar sessão", e);
         }
         return Optional.empty();
+    }
+
+    public void ensureDefaultAdmin() {
+        String normalized = normalizeEmail(DEFAULT_ADMIN_EMAIL);
+        if (normalized == null) {
+            return;
+        }
+
+        try (Connection conn = Database.getConnection()) {
+            conn.setAutoCommit(false);
+
+            Integer userId = null;
+            String currentRole = null;
+            try (PreparedStatement ps = conn.prepareStatement("SELECT id, role FROM users WHERE email = ?")) {
+                ps.setString(1, normalized);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        userId = rs.getInt("id");
+                        currentRole = rs.getString("role");
+                    }
+                }
+            }
+
+            if (userId == null) {
+                String hashed = PasswordUtils.hashPassword(DEFAULT_ADMIN_PASSWORD);
+                long now = Database.unixNow();
+                try (PreparedStatement insert = conn.prepareStatement(
+                    "INSERT INTO users(email, password_hash, role, plan, created_at) VALUES (?, ?, ?, ?, ?)",
+                    PreparedStatement.RETURN_GENERATED_KEYS
+                )) {
+                    insert.setString(1, normalized);
+                    insert.setString(2, hashed);
+                    insert.setString(3, "ADMIN");
+                    insert.setString(4, "PREMIUM");
+                    insert.setLong(5, now);
+                    insert.executeUpdate();
+                }
+            } else if (!"ADMIN".equalsIgnoreCase(currentRole)) {
+                try (PreparedStatement update = conn.prepareStatement("UPDATE users SET role = 'ADMIN' WHERE id = ?")) {
+                    update.setInt(1, userId);
+                    update.executeUpdate();
+                }
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao garantir administrador padrão", e);
+        }
     }
 
     public void invalidateToken(String token) {
@@ -146,4 +205,5 @@ public class AuthService {
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
+
 }

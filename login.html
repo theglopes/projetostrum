@@ -3,21 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strum - Login</title>
+    <title>Strum - Acessar conta</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .form-card { max-width: 360px; width: 100%; background: #0f0f0f; border: 1px solid #222; border-radius: 8px; padding: 18px; }
-        .form-card label { display:block; color:#bbb; font-size:12px; margin: 10px 0 4px; }
-        .form-card input { width:100%; padding:10px 12px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
-        .form-card button { margin-top:14px; width:100%; padding:10px 12px; border-radius:6px; border:1px solid #9f52ff; background:#9f52ff; color:#fff; cursor:pointer; }
-        .form-card button:hover { filter: brightness(1.05); }
+        body {
+            background: radial-gradient(circle at top, #1b1730 0%, #08070d 55%, #050508 100%);
+        }
+        .auth-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            max-width: 960px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 16px 80px;
+        }
+        .auth-header {
+            text-align: center;
+            color: #f5f5f5;
+        }
+        .auth-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+        .auth-card {
+            background: rgba(10, 10, 16, 0.92);
+            border: 1px solid rgba(120, 90, 180, 0.4);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(6px);
+            color: #f0f0f0;
+        }
+        .auth-card h2 {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        .auth-card p {
+            color: #bfbfbf;
+            margin-bottom: 18px;
+        }
+        .auth-card label {
+            display: block;
+            margin-bottom: 6px;
+            color: #d5d5d5;
+            font-size: 13px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #12121a;
+            border: 1px solid #2b2b3a;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+        .auth-card button {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 0;
+            background: linear-gradient(135deg, #9f52ff, #6e3fd1);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        .auth-card button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+        .auth-feedback {
+            font-size: 13px;
+            margin-top: 8px;
+            min-height: 18px;
+            color: #ff8080;
+        }
+        .auth-feedback.success {
+            color: #7df57f;
+        }
+        .shortcuts {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .shortcuts a {
+            color: #cba9ff;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+        .shortcuts a:hover {
+            border-color: currentColor;
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="header-top">
             <div class="logo">
-                <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+                <a href="index.html" aria-label="Voltar para a loja">
+                    <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+                </a>
             </div>
         </div>
         <nav class="header-bottom">
@@ -25,27 +116,195 @@
             <a href="#">COMUNIDADE</a>
             <a href="sobre.html">SOBRE</a>
             <a href="#">SUPORTE</a>
-            <div class="icons">
-                <a href="carrinho.html" class="icon icon-cart" aria-label="Carrinho" title="Carrinho">🛒</a>
-                <a href="login.html" class="icon icon-user" aria-label="Login ou Perfil" title="Login ou Perfil">👤</a>
-            </div>
         </nav>
     </header>
 
-    <main style="display:flex; justify-content:center; width:100%; padding: 20px 0;">
-        <section class="form-card">
-            <h1 style="font-size:18px; color:#fff; margin-bottom:8px;">Entrar</h1>
-            <label for="email">E-mail</label>
-            <input type="email" id="email" placeholder="voce@exemplo.com" />
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" placeholder="••••••••" />
-            <button type="button" onclick="alert('Login não implementado (demo).');">Entrar</button>
+    <main>
+        <section class="auth-wrapper">
+            <div class="auth-header">
+                <h1>Bem-vindo de volta à Strum</h1>
+                <p>Acesse seu painel para comprar jogos, administrar permissões e explorar os recursos premium.</p>
+            </div>
+
+            <div class="auth-grid">
+                <div class="auth-card">
+                    <h2>Entrar</h2>
+                    <p>Use seu e-mail e senha cadastrados para acessar sua conta.</p>
+                    <form id="login-form" novalidate>
+                        <label for="login-email">E-mail</label>
+                        <input type="email" id="login-email" name="email" required placeholder="voce@strum.com">
+
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" name="password" required placeholder="••••••••">
+
+                        <button type="submit" id="login-submit">Entrar</button>
+                        <p class="auth-feedback" id="login-feedback"></p>
+                    </form>
+                </div>
+
+                <div class="auth-card">
+                    <h2>Criar conta</h2>
+                    <p>Cadastre-se para aproveitar ofertas exclusivas, assinar o Strum+ e acessar a comunidade.</p>
+                    <form id="register-form" novalidate>
+                        <label for="register-email">E-mail</label>
+                        <input type="email" id="register-email" name="email" required placeholder="novo@strum.com">
+
+                        <label for="register-password">Senha</label>
+                        <input type="password" id="register-password" name="password" required minlength="4" placeholder="minimo 4 caracteres">
+
+                        <button type="submit" id="register-submit">Criar conta</button>
+                        <p class="auth-feedback" id="register-feedback"></p>
+                    </form>
+                </div>
+            </div>
+
+            <div class="shortcuts">
+                <a href="perfil.html">Ir para meu perfil</a>
+                <a href="index.html">Explorar a loja</a>
+            </div>
         </section>
     </main>
 
     <footer>
-        ©2025 Strum LTDA. Todos os direitos reservados.
+        © 2025 Strum LTDA. Todos os direitos reservados.
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE = 'http://localhost:8000';
+            const TOKEN_KEY = 'strum_token';
+
+            const els = {
+                loginForm: document.getElementById('login-form'),
+                loginEmail: document.getElementById('login-email'),
+                loginPassword: document.getElementById('login-password'),
+                loginFeedback: document.getElementById('login-feedback'),
+                loginSubmit: document.getElementById('login-submit'),
+                registerForm: document.getElementById('register-form'),
+                registerEmail: document.getElementById('register-email'),
+                registerPassword: document.getElementById('register-password'),
+                registerFeedback: document.getElementById('register-feedback'),
+                registerSubmit: document.getElementById('register-submit')
+            };
+
+            function setFeedback(el, message, success = false) {
+                if (!el) return;
+                el.textContent = message || '';
+                el.classList.toggle('success', success);
+            }
+
+            function saveToken(token) {
+                if (token) {
+                    localStorage.setItem(TOKEN_KEY, token);
+                }
+            }
+
+            function getToken() {
+                return localStorage.getItem(TOKEN_KEY);
+            }
+
+            function redirectToProfile() {
+                window.location.href = 'perfil.html';
+            }
+
+            async function api(path, options = {}) {
+                const opts = { ...options };
+                opts.headers = { ...(options.headers || {}) };
+                if (opts.body && !opts.headers['Content-Type']) {
+                    opts.headers['Content-Type'] = 'application/json';
+                }
+                const token = getToken();
+                if (token) {
+                    opts.headers['Authorization'] = 'Bearer ' + token;
+                }
+                const response = await fetch(API_BASE + path, opts);
+                const text = await response.text();
+                let data = null;
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (err) {
+                        console.warn('Resposta nao e JSON valido', err);
+                    }
+                }
+                if (!response.ok) {
+                    const message = data && data.error ? data.error : 'Erro ' + response.status;
+                    throw new Error(message);
+                }
+                return data;
+            }
+
+            async function ensureAuthenticatedRedirect() {
+                const token = getToken();
+                if (!token) {
+                    return;
+                }
+                try {
+                    await api('/auth/me', { method: 'GET' });
+                    redirectToProfile();
+                } catch (err) {
+                    console.warn('Sessao invalida', err);
+                    localStorage.removeItem(TOKEN_KEY);
+                }
+            }
+
+            if (els.loginForm) {
+                els.loginForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const email = els.loginEmail.value.trim();
+                    const password = els.loginPassword.value;
+                    if (!email || !password) {
+                        setFeedback(els.loginFeedback, 'Informe e-mail e senha.');
+                        return;
+                    }
+                    setFeedback(els.loginFeedback, 'Entrando...');
+                    els.loginSubmit.disabled = true;
+                    try {
+                        const data = await api('/auth/login', {
+                            method: 'POST',
+                            body: JSON.stringify({ email, password })
+                        });
+                        saveToken(data.token);
+                        setFeedback(els.loginFeedback, 'Login realizado, redirecionando...', true);
+                        setTimeout(redirectToProfile, 600);
+                    } catch (err) {
+                        setFeedback(els.loginFeedback, err.message || 'Nao foi possivel entrar.');
+                    } finally {
+                        els.loginSubmit.disabled = false;
+                    }
+                });
+            }
+
+            if (els.registerForm) {
+                els.registerForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const email = els.registerEmail.value.trim();
+                    const password = els.registerPassword.value;
+                    if (!email || !password || password.length < 4) {
+                        setFeedback(els.registerFeedback, 'Informe um e-mail valido e senha com pelo menos 4 caracteres.');
+                        return;
+                    }
+                    setFeedback(els.registerFeedback, 'Criando conta...');
+                    els.registerSubmit.disabled = true;
+                    try {
+                        await api('/auth/register', {
+                            method: 'POST',
+                            body: JSON.stringify({ email, password })
+                        });
+                        setFeedback(els.registerFeedback, 'Conta criada com sucesso! Use o formulário ao lado para entrar.', true);
+                        els.registerForm.reset();
+                        els.loginEmail.value = email;
+                        els.loginPassword.focus();
+                    } catch (err) {
+                        setFeedback(els.registerFeedback, err.message || 'Nao foi possivel criar a conta.');
+                    } finally {
+                        els.registerSubmit.disabled = false;
+                    }
+                });
+            }
+
+            ensureAuthenticatedRedirect();
+        });
+    </script>
 </body>
 </html>
-

@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OrderService {
 
@@ -27,14 +29,31 @@ public class OrderService {
         try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
             try {
+                Set<Integer> ownedGames = loadOwnedGameIds(conn, userId);
+                Set<Integer> cartGameIds = new HashSet<>();
+
                 for (CheckoutItem item : items) {
                     Game game = fetchGame(conn, item.gameId());
                     if (game == null) {
-                        throw new IllegalArgumentException("Jogo não encontrado: " + item.gameId());
+                        throw new IllegalArgumentException("Jogo nao encontrado: " + item.gameId());
                     }
+                    if (ownedGames.contains(game.getId())) {
+                        throw new IllegalArgumentException("Voce ja possui o jogo: " + game.getNome());
+                    }
+                    if (!cartGameIds.add(game.getId())) {
+                        throw new IllegalArgumentException("Jogo duplicado no carrinho: " + game.getNome());
+                    }
+
                     int qty = Math.max(1, item.quantity());
                     total += game.getPreco() * qty;
-                    games.add(new Game(game.getId(), game.getNome(), game.getPreco(), game.getPlataforma(), game.isPromocao(), game.getImagem()));
+                    games.add(new Game(
+                        game.getId(),
+                        game.getNome(),
+                        game.getPreco(),
+                        game.getPlataforma(),
+                        game.isPromocao(),
+                        game.getImagem()
+                    ));
                 }
 
                 int orderId = insertOrder(conn, userId, total);
@@ -50,6 +69,37 @@ public class OrderService {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao processar checkout", e);
         }
+    }
+
+    public List<Game> listPurchasedGames(int userId) {
+        String sql = """
+            SELECT DISTINCT g.id, g.name, g.price, g.image, g.promo
+            FROM orders o
+            JOIN order_items oi ON oi.order_id = o.id
+            JOIN games g ON g.id = oi.game_id
+            WHERE o.user_id = ?
+            ORDER BY g.name
+        """;
+        List<Game> games = new ArrayList<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    games.add(new Game(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getDouble("price"),
+                        "PC",
+                        rs.getInt("promo") == 1,
+                        rs.getString("image")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar biblioteca do usuario", e);
+        }
+        return games;
     }
 
     private Game fetchGame(Connection conn, int id) throws SQLException {
@@ -85,7 +135,7 @@ public class OrderService {
                 }
             }
         }
-        throw new SQLException("Não foi possível criar pedido");
+        throw new SQLException("Nao foi possivel criar pedido");
     }
 
     private void insertOrderItems(Connection conn, int orderId, List<CheckoutItem> items, List<Game> games) throws SQLException {
@@ -103,4 +153,24 @@ public class OrderService {
             ps.executeBatch();
         }
     }
+
+    private Set<Integer> loadOwnedGameIds(Connection conn, int userId) throws SQLException {
+        Set<Integer> owned = new HashSet<>();
+        String sql = """
+            SELECT DISTINCT oi.game_id
+            FROM orders o
+            JOIN order_items oi ON oi.order_id = o.id
+            WHERE o.user_id = ?
+        """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    owned.add(rs.getInt("game_id"));
+                }
+            }
+        }
+        return owned;
+    }
 }
+

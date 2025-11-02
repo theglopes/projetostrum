@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strum - Meu Perfil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .profile-card,
+        .role-card {
+            background: #0f0f0f;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 18px;
+        }
+        .profile-grid {
+            display: grid;
+            gap: 18px;
+            margin-top: 18px;
+        }
+        .plan-card .plan-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .plan-card .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #1b1b1b;
+            border: 1px solid #333;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #d0d0d0;
+        }
+        .plan-card .tag.premium {
+            background: #23153c;
+            border-color: #9f52ff;
+            color: #d8c2ff;
+        }
+        .role-card h2 {
+            margin-bottom: 6px;
+        }
+        .role-card small {
+            color: #999;
+        }
+        .role-card-list {
+            margin-top: 12px;
+        }
+        .role-card-list li {
+            margin-bottom: 6px;
+            color: #c5c5c5;
+        }
+        .admin-overview {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            margin-top: 12px;
+        }
+        .admin-overview .card {
+            background: #141414;
+            border: 1px solid #292929;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .admin-overview .card strong {
+            font-size: 20px;
+            display: block;
+        }
+        .admin-panel {
+            margin-top: 18px;
+            display: grid;
+            gap: 18px;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .admin-table th,
+        .admin-table td {
+            border-bottom: 1px solid #222;
+            padding: 8px;
+            text-align: left;
+        }
+        .admin-table th {
+            color: #aaa;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .admin-users-empty {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #999;
+        }
+        .admin-table select {
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #f0f0f0;
+            padding: 6px 8px;
+        }
+        .admin-game-form .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .admin-game-form label {
+            font-size: 13px;
+            color: #bfbfbf;
+        }
+        .admin-game-form input,
+        .admin-game-form select {
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: #f5f5f5;
+        }
+        .admin-game-form button {
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: #9f52ff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .admin-game-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .form-feedback {
+            font-size: 13px;
+            margin-top: 6px;
+            color: #9f52ff;
+        }
+        .form-feedback.error {
+            color: #ff7878;
+        }
+        .developer-request-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .developer-request-form {
+            margin-top: 12px;
+            display: grid;
+            gap: 10px;
+        }
+        .developer-request-form .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .developer-request-form label {
+            font-size: 13px;
+            color: #bfbfbf;
+        }
+        .developer-request-form input {
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: #f5f5f5;
+        }
+        .developer-request-status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #b5b5b5;
+        }
+        .developer-game {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #1c1c1c;
+        }
+        .developer-game .text-muted {
+            font-size: 13px;
+            color: #9c9c9c;
+            margin-bottom: 12px;
+        }
+        .developer-game-form .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .developer-game-form label {
+            font-size: 13px;
+            color: #bfbfbf;
+        }
+        .developer-game-form input,
+        .developer-game-form select {
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: #f5f5f5;
+        }
+        .developer-game-form button {
+            margin-top: 8px;
+            padding: 10px 16px;
+            background: #7dff80;
+            color: #101010;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .developer-game-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            border: 1px solid #444;
+        }
+        .btn-secondary {
+            background: transparent;
+            color: #cfcfcf;
+            border: 1px solid #444;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            border-color: #666;
+            color: #fff;
+        }
+        .badge.moderator {
+            border-color: #52d6ff;
+            color: #52d6ff;
+        }
+        .badge.developer {
+            border-color: #7dff80;
+            color: #7dff80;
+        }
+        .badge.admin {
+            border-color: #ff9f52;
+            color: #ff9f52;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <a href="index.html" aria-label="Voltar para a loja">
+                    <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+                </a>
+            </div>
+        </div>
+        <nav class="header-bottom">
+            <div class="nav-links">
+                <a href="index.html">LOJA</a>
+                <a href="#">COMUNIDADE</a>
+                <a href="sobre.html">SOBRE</a>
+                <a href="#">SUPORTE</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-user hidden" id="nav-user" aria-live="polite">
+                    <span id="nav-user-email"></span>
+                    <a href="perfil.html" class="nav-action nav-profile" id="btn-profile">Perfil</a>
+                    <button type="button" class="nav-action nav-logout" id="btn-logout">Sair</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="profile-main">
+        <section class="profile-container">
+            <div class="profile-heading">
+                <h1>Meu Perfil</h1>
+                <p id="profile-status" class="profile-status"></p>
+            </div>
+
+            <div class="profile-card">
+                <div class="profile-card-content">
+                    <h2>Dados da conta</h2>
+                    <dl class="profile-info">
+                        <div class="profile-row">
+                            <dt>E-mail</dt>
+                            <dd id="profile-email">Carregando...</dd>
+                        </div>
+                        <div class="profile-row">
+                            <dt>Conta criada em</dt>
+                            <dd id="profile-created">-</dd>
+                        </div>
+                        <div class="profile-row">
+                            <dt>Papel</dt>
+                            <dd id="profile-role">-</dd>
+                        </div>
+                        <div class="profile-row">
+                            <dt>Plano</dt>
+                            <dd id="profile-plan">-</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="profile-card plan-card" id="plan-section">
+                <h2>Assinatura Strum+</h2>
+                <p>Mantenha seu plano ativo para liberar acesso antecipado, descontos e benefícios exclusivos.</p>
+                <span class="tag" id="plan-badge">Plano atual: gratuito</span>
+                <div class="plan-actions">
+                    <button type="button" class="nav-action" id="plan-upgrade">Assinar Strum+</button>
+                    <button type="button" class="btn-secondary" id="plan-cancel">Cancelar assinatura</button>
+                </div>
+            </div>
+
+            <div class="profile-grid">
+                <section class="role-card hidden" id="developer-request-section">
+                    <h2>Quero publicar jogos</h2>
+                    <small>Envie uma solicitação para liberar o painel de desenvolvedor.</small>
+                    <div class="developer-request-actions">
+                        <button type="button" class="btn btn-primary" id="developer-request-toggle">Se torne um desenvolvedor</button>
+                    </div>
+                    <form id="developer-request-form" class="developer-request-form hidden" novalidate>
+                        <div class="form-row">
+                            <label for="developer-request-name">Nome do desenvolvedor</label>
+                            <input type="text" id="developer-request-name" required placeholder="Ex.: Estudio Strum">
+                        </div>
+                        <div class="form-row">
+                            <label for="developer-request-cnpj">CNPJ da empresa</label>
+                            <input type="text" id="developer-request-cnpj" required placeholder="00.000.000/0000-00" inputmode="numeric">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar solicitação</button>
+                    </form>
+                    <p id="developer-request-feedback" class="form-feedback"></p>
+                    <p id="developer-request-status" class="developer-request-status"></p>
+                </section>
+
+                <section class="role-card hidden" id="developer-section">
+                    <h2>Área do Desenvolvedor</h2>
+                    <small>Publique novos títulos e acompanhe a performance da comunidade.</small>
+                    <div id="developer-stats" class="role-card-content"></div>
+                    <ul id="developer-highlights" class="role-card-list"></ul>
+                    <div id="developer-game-section" class="developer-game hidden">
+                        <h3>Solicitar publicação de jogo</h3>
+                        <p class="text-muted">Os envios ficam pendentes até a aprovação de um administrador ou moderador.</p>
+                        <form id="developer-game-form" class="developer-game-form">
+                            <div class="form-row">
+                                <label for="developer-game-name">Nome do jogo</label>
+                                <input type="text" id="developer-game-name" required placeholder="Ex.: Strum Racing">
+                            </div>
+                            <div class="form-row">
+                                <label for="developer-game-price">Preço (R$)</label>
+                                <input type="number" id="developer-game-price" min="0" step="0.01" required placeholder="129.90">
+                            </div>
+                            <div class="form-row">
+                                <label for="developer-game-image">Imagem do jogo</label>
+                                <input type="file" id="developer-game-image" accept="image/*">
+                                <div id="developer-game-preview" class="form-image-preview hidden">
+                                    <img alt="Pre-visualizacao da capa do jogo">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="developer-game-promo">Entrar em promoção?</label>
+                                <select id="developer-game-promo">
+                                    <option value="false" selected>Não</option>
+                                    <option value="true">Sim</option>
+                                </select>
+                            </div>
+                            <button type="submit">Enviar para aprovação</button>
+                        </form>
+                        <p id="developer-game-feedback" class="form-feedback"></p>
+                    </div>
+                </section>
+
+                <section class="role-card hidden" id="moderator-section">
+                    <h2>Área do Moderador</h2>
+                    <small>Receba tarefas da comunidade e mantenha o ambiente saudável.</small>
+                    <div id="moderator-summary" class="role-card-content"></div>
+                    <ul id="moderator-tasks" class="role-card-list"></ul>
+                </section>
+
+                <section class="role-card hidden" id="admin-section">
+                    <h2>Painel Administrativo</h2>
+                    <small>Gerencie permissões, assinaturas e o catalogo da Strum.</small>
+                    <div id="admin-overview" class="admin-overview"></div>
+
+                    <div class="admin-panel">
+                        <div class="admin-users">
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                                <h3>Usuários cadastrados</h3>
+                                <button type="button" class="btn-secondary" id="admin-reload-users">Atualizar lista</button>
+                            </div>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>E-mail</th>
+                                        <th>Papel</th>
+                                        <th>Plano</th>
+                                        <th>Criado em</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-body"></tbody>
+                            </table>
+                            <p id="admin-users-empty" class="admin-users-empty hidden">Nenhum usuário encontrado.</p>
+                        </div>
+
+                        <div class="admin-game">
+                            <h3>Adicionar novo jogo</h3>
+                            <form id="admin-game-form" class="admin-game-form">
+                                <div class="form-row">
+                                    <label for="admin-game-name">Nome do jogo</label>
+                                    <input type="text" id="admin-game-name" required placeholder="Ex.: Strum Racing">
+                                </div>
+                                <div class="form-row">
+                                    <label for="admin-game-price">Preço (R$)</label>
+                                    <input type="number" id="admin-game-price" min="0" step="0.01" required placeholder="129.90">
+                                </div>
+                                <div class="form-row">
+                                    <label for="admin-game-image">Imagem do jogo</label>
+                                    <input type="file" id="admin-game-image" accept="image/*">
+                                    <div id="admin-game-preview" class="form-image-preview hidden">
+                                        <img alt="Pre-visualizacao da capa do jogo">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="admin-game-promo">Entrar em promoção?</label>
+                                    <select id="admin-game-promo">
+                                        <option value="false" selected>Não</option>
+                                        <option value="true">Sim</option>
+                                    </select>
+                                </div>
+                                <button type="submit">Adicionar jogo</button>
+                            </form>
+                            <p id="admin-game-feedback" class="form-feedback"></p>
+                        </div>
+
+                        <div class="admin-dev-requests">
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                                <h3>Solicitacoes de desenvolvedor</h3>
+                                <button type="button" class="btn-secondary" id="admin-reload-dev-requests">Atualizar</button>
+                            </div>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Estudio</th>
+                                        <th>CNPJ</th>
+                                        <th>Status</th>
+                                        <th>Enviado em</th>
+                                        <th>Acoes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-dev-requests-body"></tbody>
+                            </table>
+                            <p id="admin-dev-requests-empty" class="admin-users-empty hidden">Nenhuma solicitacao pendente.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="library-section">
+                <div class="library-header">
+                    <h2>Biblioteca de jogos</h2>
+                    <span id="library-count" class="library-count"></span>
+                </div>
+                <div id="library-empty" class="library-empty hidden">
+                    Nenhum jogo adquirido ainda. Explore a <a href="index.html">loja</a> e garanta o primeiro!
+                </div>
+                <div id="library-grid" class="library-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        � 2025 Strum LTDA. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE = 'http://localhost:8000';
+            const TOKEN_KEY = 'strum_token';
+            const LIBRARY_KEY = 'strum_library';
+
+            let currentUser = null;
+
+            const els = {
+                navUser: document.getElementById('nav-user'),
+                navUserEmail: document.getElementById('nav-user-email'),
+                logoutBtn: document.getElementById('btn-logout'),
+                profileLink: document.getElementById('btn-profile'),
+                profileEmail: document.getElementById('profile-email'),
+                profileCreated: document.getElementById('profile-created'),
+                profileRole: document.getElementById('profile-role'),
+                profilePlan: document.getElementById('profile-plan'),
+                libraryGrid: document.getElementById('library-grid'),
+                libraryEmpty: document.getElementById('library-empty'),
+                libraryCount: document.getElementById('library-count'),
+                status: document.getElementById('profile-status'),
+                planSection: document.getElementById('plan-section'),
+                planBadge: document.getElementById('plan-badge'),
+                planUpgrade: document.getElementById('plan-upgrade'),
+                planCancel: document.getElementById('plan-cancel'),
+                developerRequestSection: document.getElementById('developer-request-section'),
+                developerRequestToggle: document.getElementById('developer-request-toggle'),
+                developerRequestForm: document.getElementById('developer-request-form'),
+                developerRequestName: document.getElementById('developer-request-name'),
+                developerRequestCnpj: document.getElementById('developer-request-cnpj'),
+                developerRequestFeedback: document.getElementById('developer-request-feedback'),
+                developerRequestStatus: document.getElementById('developer-request-status'),
+                developerSection: document.getElementById('developer-section'),
+                developerStats: document.getElementById('developer-stats'),
+                developerHighlights: document.getElementById('developer-highlights'),
+                developerGameContainer: document.getElementById('developer-game-section'),
+                developerGameForm: document.getElementById('developer-game-form'),
+                developerGameName: document.getElementById('developer-game-name'),
+                developerGamePrice: document.getElementById('developer-game-price'),
+                developerGameImage: document.getElementById('developer-game-image'),
+                developerGamePreview: document.getElementById('developer-game-preview'),
+                developerGamePreviewImage: document.querySelector('#developer-game-preview img'),
+                developerGamePromo: document.getElementById('developer-game-promo'),
+                developerGameFeedback: document.getElementById('developer-game-feedback'),
+                moderatorSection: document.getElementById('moderator-section'),
+                moderatorSummary: document.getElementById('moderator-summary'),
+                moderatorTasks: document.getElementById('moderator-tasks'),
+                adminSection: document.getElementById('admin-section'),
+                adminOverview: document.getElementById('admin-overview'),
+                adminUsersBody: document.getElementById('admin-users-body'),
+                adminUsersEmpty: document.getElementById('admin-users-empty'),
+                adminReloadUsers: document.getElementById('admin-reload-users'),
+                adminGameForm: document.getElementById('admin-game-form'),
+                adminGameName: document.getElementById('admin-game-name'),
+                adminGamePrice: document.getElementById('admin-game-price'),
+                adminGameImage: document.getElementById('admin-game-image'),
+                adminGamePreview: document.getElementById('admin-game-preview'),
+                adminGamePreviewImage: document.querySelector('#admin-game-preview img'),
+                adminGamePromo: document.getElementById('admin-game-promo'),
+                adminGameFeedback: document.getElementById('admin-game-feedback'),
+                adminDevRequestsBody: document.getElementById('admin-dev-requests-body'),
+                adminDevRequestsEmpty: document.getElementById('admin-dev-requests-empty'),
+                adminReloadDevRequests: document.getElementById('admin-reload-dev-requests')
+            };
+
+            const MONTHS = [
+                'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+                'jul', 'ago', 'set', 'out', 'nov', 'dez'
+            ];
+
+            const ROLE_LABELS = {
+                ADMIN: 'Administrador',
+                MODERATOR: 'Moderador',
+                DEVELOPER: 'Desenvolvedor',
+                USER: 'Jogador'
+            };
+
+            const PLAN_LABELS = {
+                PREMIUM: 'Strum+ Premium',
+                FREE: 'Gratuito'
+            };
+
+            const IMAGE_ERROR_INVALID = 'Selecione um arquivo de imagem valido.';
+            const IMAGE_ERROR_PROCESS = 'Nao foi possivel carregar a imagem selecionada.';
+
+            function money(value) {
+                return (Number(value) || 0).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+            }
+
+            function isImageFile(file) {
+                return !!(file && typeof file.type === 'string' && file.type.toLowerCase().startsWith('image/'));
+            }
+
+            function readFileAsDataURL(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error(IMAGE_ERROR_PROCESS));
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function setImagePreview(container, imgEl, dataUrl) {
+                if (!container || !imgEl) {
+                    return;
+                }
+                if (dataUrl) {
+                    imgEl.src = dataUrl;
+                    container.classList.remove('hidden');
+                } else {
+                    imgEl.removeAttribute('src');
+                    container.classList.add('hidden');
+                }
+            }
+
+            function resetImageInput(input, container, imgEl) {
+                if (!input) {
+                    return;
+                }
+                if (input.dataset) {
+                    delete input.dataset.imageData;
+                }
+                input.value = '';
+                setImagePreview(container, imgEl, null);
+            }
+
+            function updateImageFeedback(target, message) {
+                if (!target) {
+                    return;
+                }
+                target.textContent = message || '';
+                if (message) {
+                    target.classList.add('error');
+                } else {
+                    target.classList.remove('error');
+                }
+            }
+
+            function clearImageFeedbackIfNeeded(target) {
+                if (!target) {
+                    return;
+                }
+                if (target.textContent === IMAGE_ERROR_INVALID || target.textContent === IMAGE_ERROR_PROCESS) {
+                    target.textContent = '';
+                    target.classList.remove('error');
+                }
+            }
+
+            function bindImageInput(input, container, imgEl, feedbackTarget) {
+                if (!input) {
+                    return;
+                }
+                input.addEventListener('change', () => {
+                    if (!input.files || !input.files.length) {
+                        resetImageInput(input, container, imgEl);
+                        return;
+                    }
+                    const file = input.files[0];
+                    if (!isImageFile(file)) {
+                        updateImageFeedback(feedbackTarget, IMAGE_ERROR_INVALID);
+                        resetImageInput(input, container, imgEl);
+                        return;
+                    }
+                    readFileAsDataURL(file)
+                        .then(dataUrl => {
+                            if (input.dataset) {
+                                input.dataset.imageData = dataUrl;
+                            }
+                            setImagePreview(container, imgEl, dataUrl);
+                            clearImageFeedbackIfNeeded(feedbackTarget);
+                        })
+                        .catch(() => {
+                            updateImageFeedback(feedbackTarget, IMAGE_ERROR_PROCESS);
+                            resetImageInput(input, container, imgEl);
+                        });
+                });
+            }
+
+            async function ensureImageData(input) {
+                if (!input) {
+                    return null;
+                }
+                if (input.dataset && input.dataset.imageData) {
+                    return input.dataset.imageData;
+                }
+                const file = input.files && input.files.length ? input.files[0] : null;
+                if (!file) {
+                    return null;
+                }
+                if (!isImageFile(file)) {
+                    throw new Error(IMAGE_ERROR_INVALID);
+                }
+                const dataUrl = await readFileAsDataURL(file);
+                if (input.dataset) {
+                    input.dataset.imageData = dataUrl;
+                }
+                return dataUrl;
+            }
+
+            function normalizeCnpj(value) {
+                return (value || '').replace(/\D+/g, '');
+            }
+
+            function formatCnpj(value) {
+                const digits = normalizeCnpj(value);
+                if (digits.length !== 14) {
+                    return digits;
+                }
+                return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            }
+
+            function unixToDateText(epoch) {
+                if (!epoch) return '-';
+                const date = new Date(epoch * 1000);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = MONTHS[date.getMonth()] || '';
+                const year = date.getFullYear();
+                return `${day} ${month}. ${year}`;
+            }
+
+            function getToken() {
+                return localStorage.getItem(TOKEN_KEY);
+            }
+
+            function clearToken() {
+                localStorage.removeItem(TOKEN_KEY);
+            }
+
+            function loadLibrarySnapshot() {
+                try {
+                    const raw = localStorage.getItem(LIBRARY_KEY);
+                    if (!raw) return null;
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.games)) {
+                        return parsed.games;
+                    }
+                } catch (err) {
+                    console.warn('Falha ao carregar biblioteca local', err);
+                }
+                return null;
+            }
+
+            function saveLibrarySnapshot(library) {
+                if (!library) return;
+                const games = Array.isArray(library) ? library : (library.games || []);
+                try {
+                    const payload = {
+                        games: games.map(game => ({
+                            id: game.id,
+                            nome: game.nome,
+                            preco: game.preco,
+                            imagem: game.imagem
+                        })),
+                        updatedAt: Date.now()
+                    };
+                    localStorage.setItem(LIBRARY_KEY, JSON.stringify(payload));
+                } catch (err) {
+                    console.warn('Falha ao salvar biblioteca local', err);
+                }
+            }
+
+            function clearLibrarySnapshot() {
+                localStorage.removeItem(LIBRARY_KEY);
+            }
+
+            async function api(path, options = {}) {
+                const opts = { ...options };
+                opts.headers = { ...(options.headers || {}) };
+                if (opts.body && !opts.headers['Content-Type']) {
+                    opts.headers['Content-Type'] = 'application/json';
+                }
+                const token = getToken();
+                if (token) {
+                    opts.headers['Authorization'] = 'Bearer ' + token;
+                }
+                const response = await fetch(API_BASE + path, opts);
+                const text = await response.text();
+                let data = null;
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (err) {
+                        console.warn('Resposta nao e JSON valido', err);
+                    }
+                }
+                if (!response.ok) {
+                    const message = data && data.error ? data.error : 'Erro ' + response.status;
+                    throw new Error(message);
+                }
+                return data;
+            }
+
+            function setStatus(message, success = false) {
+                if (!els.status) return;
+                els.status.textContent = message || '';
+                els.status.classList.toggle('success', success);
+                els.status.classList.toggle('error', Boolean(message) && !success);
+            }
+
+            function setDeveloperRequestFeedback(message, isError = false) {
+                if (!els.developerRequestFeedback) {
+                    return;
+                }
+                els.developerRequestFeedback.textContent = message || '';
+                if (message) {
+                    els.developerRequestFeedback.classList.toggle('error', isError);
+                } else {
+                    els.developerRequestFeedback.classList.remove('error');
+                }
+            }
+
+            function setDeveloperGameFeedback(message, isError = false) {
+                if (!els.developerGameFeedback) {
+                    return;
+                }
+                els.developerGameFeedback.textContent = message || '';
+                if (message) {
+                    els.developerGameFeedback.classList.toggle('error', isError);
+                } else {
+                    els.developerGameFeedback.classList.remove('error');
+                }
+            }
+
+            function showDeveloperRequestForm(show) {
+                if (!els.developerRequestForm) {
+                    return;
+                }
+                els.developerRequestForm.classList.toggle('hidden', !show);
+            }
+
+            function updateDeveloperRequestUI() {
+                if (!els.developerRequestSection) {
+                    return;
+                }
+                const isDeveloper = hasRole('DEVELOPER');
+                const isAdmin = hasRole('ADMIN');
+                if (isDeveloper || isAdmin) {
+                    els.developerRequestSection.classList.add('hidden');
+                    if (els.developerGameContainer) {
+                        els.developerGameContainer.classList.remove('hidden');
+                    }
+                    return;
+                }
+                els.developerRequestSection.classList.remove('hidden');
+                if (els.developerGameContainer) {
+                    els.developerGameContainer.classList.add('hidden');
+                }
+
+                const statusInfo = developerRequestData;
+                const statusValue = statusInfo && statusInfo.status ? statusInfo.status.toUpperCase() : 'NONE';
+
+                if (els.developerRequestStatus) {
+                    let message = '';
+                    if (statusValue === 'PENDING') {
+                        const studio = statusInfo && statusInfo.studioName ? statusInfo.studioName : 'sua equipe';
+                        message = `Solicitacao enviada para ${studio}. Aguarde a analise de um administrador.`;
+                    } else if (statusValue === 'APPROVED') {
+                        message = 'Solicitacao aprovada! Atualize a pagina para acessar o painel de desenvolvedor.';
+                    } else if (statusValue === 'REJECTED') {
+                        message = 'Solicitacao reprovada. Reveja os dados e envie novamente.';
+                    }
+                    els.developerRequestStatus.textContent = message;
+                }
+
+                if (els.developerRequestToggle) {
+                    if (statusValue === 'PENDING') {
+                        els.developerRequestToggle.disabled = true;
+                        els.developerRequestToggle.textContent = 'Solicitacao em analise';
+                    } else if (statusValue === 'APPROVED') {
+                        els.developerRequestToggle.disabled = true;
+                        els.developerRequestToggle.textContent = 'Solicitacao aprovada';
+                    } else if (statusValue === 'REJECTED') {
+                        els.developerRequestToggle.disabled = false;
+                        const formOpen = els.developerRequestForm && !els.developerRequestForm.classList.contains('hidden');
+                        els.developerRequestToggle.textContent = formOpen ? 'Fechar formulario' : 'Tentar novamente';
+                    } else {
+                        els.developerRequestToggle.disabled = false;
+                        const formOpen = els.developerRequestForm && !els.developerRequestForm.classList.contains('hidden');
+                        els.developerRequestToggle.textContent = formOpen ? 'Fechar formulario' : 'Se torne um desenvolvedor';
+                    }
+                }
+
+                if (els.developerRequestForm) {
+                    if (statusValue === 'PENDING' || statusValue === 'APPROVED') {
+                        els.developerRequestForm.classList.add('hidden');
+                    }
+                    if (statusValue !== 'PENDING' && statusValue !== 'APPROVED') {
+                        setDeveloperRequestFeedback('');
+                    }
+                }
+            }
+
+            async function loadDeveloperRequest(force = false) {
+                if (!els.developerRequestSection) {
+                    return;
+                }
+                if (developerRequestLoaded && !force) {
+                    updateDeveloperRequestUI();
+                    return;
+                }
+                try {
+                    const data = await api('/developer/requests', { method: 'GET' });
+                    developerRequestData = data && data.request ? data.request : null;
+                    developerRequestLoaded = true;
+                    updateDeveloperRequestUI();
+                } catch (err) {
+                    developerRequestLoaded = false;
+                    developerRequestData = null;
+                    console.warn('Falha ao carregar solicitacao de desenvolvedor', err);
+                    setDeveloperRequestFeedback(err.message || 'Nao foi possivel carregar sua solicitacao.', true);
+                }
+            }
+
+            async function submitDeveloperRequest(event) {
+                event.preventDefault();
+                if (!els.developerRequestForm) {
+                    return;
+                }
+                const studioName = els.developerRequestName ? els.developerRequestName.value.trim() : '';
+                const cnpj = els.developerRequestCnpj ? els.developerRequestCnpj.value.trim() : '';
+                if (!studioName) {
+                    setDeveloperRequestFeedback('Informe o nome do estudio.', true);
+                    return;
+                }
+                if (!cnpj) {
+                    setDeveloperRequestFeedback('Informe o CNPJ.', true);
+                    return;
+                }
+                const submitBtn = els.developerRequestForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+                setDeveloperRequestFeedback('Enviando solicitacao...');
+                try {
+                    await api('/developer/requests', {
+                        method: 'POST',
+                        body: JSON.stringify({ studioName, cnpj })
+                    });
+                    if (els.developerRequestForm) {
+                        els.developerRequestForm.reset();
+                    }
+                    developerRequestLoaded = false;
+                    await loadDeveloperRequest(true);
+                    setDeveloperRequestFeedback('Solicitacao enviada! Aguarde o retorno.', false);
+                } catch (err) {
+                    setDeveloperRequestFeedback(err.message || 'Nao foi possivel enviar a solicitacao.', true);
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                }
+            }
+
+            function updateAuthUI() {
+                if (!els.navUser || !els.navUserEmail) return;
+                if (currentUser && currentUser.email) {
+                    els.navUser.classList.remove('hidden');
+                    els.navUserEmail.textContent = currentUser.email;
+                } else {
+                    els.navUser.classList.add('hidden');
+                    els.navUserEmail.textContent = '';
+                }
+            }
+
+            function renderUser(user) {
+                if (!user) return;
+                if (els.profileEmail) {
+                    els.profileEmail.textContent = user.email || '-';
+                }
+                if (els.profileCreated) {
+                    els.profileCreated.textContent = unixToDateText(user.createdAt);
+                }
+                if (els.profileRole) {
+                    const role = (user.role || 'USER').toUpperCase();
+                    els.profileRole.textContent = ROLE_LABELS[role] || role;
+                }
+                if (els.profilePlan) {
+                    const plan = (user.plan || 'FREE').toUpperCase();
+                    els.profilePlan.textContent = PLAN_LABELS[plan] || plan;
+                }
+                if (els.status) {
+                    const role = (user.role || 'USER').toUpperCase();
+                    const plan = (user.plan || 'FREE').toUpperCase();
+                    els.status.textContent = `Papel: ${ROLE_LABELS[role] || role} • Plano: ${PLAN_LABELS[plan] || plan}`;
+                }
+                if (els.profileLink) {
+                    els.profileLink.classList.add('active');
+                }
+            }
+
+            function createLibraryCard(game) {
+                const card = document.createElement('article');
+                card.className = 'library-card';
+
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'library-card-image';
+                const img = document.createElement('img');
+                img.loading = 'lazy';
+                img.alt = game.nome || 'Jogo';
+                img.src = game.imagem || 'css/Strum Logo Sem Fundo.png';
+                imgWrapper.appendChild(img);
+                card.appendChild(imgWrapper);
+
+                const body = document.createElement('div');
+                body.className = 'library-card-body';
+
+                const titleRow = document.createElement('div');
+                titleRow.className = 'library-card-title-row';
+
+                const title = document.createElement('h3');
+                title.textContent = game.nome || 'Jogo desconhecido';
+                titleRow.appendChild(title);
+
+                const hasPromo = Boolean(game.promocao || game.promo);
+                if (hasPromo) {
+                    const badge = document.createElement('span');
+                    badge.className = 'library-card-badge promo';
+                    badge.textContent = 'Promocao';
+                    titleRow.appendChild(badge);
+                }
+
+                body.appendChild(titleRow);
+
+                const price = document.createElement('p');
+                price.className = 'library-card-price';
+                price.textContent = money(game.preco);
+                body.appendChild(price);
+
+                card.appendChild(body);
+                return card;
+            }
+
+            function renderLibrary(games) {
+                if (!els.libraryGrid || !els.libraryEmpty || !els.libraryCount) {
+                    return;
+                }
+                els.libraryGrid.innerHTML = '';
+
+                const list = Array.isArray(games) ? games : [];
+                if (!list.length) {
+                    els.libraryEmpty.classList.remove('hidden');
+                    els.libraryCount.textContent = '0 jogos';
+                    return;
+                }
+                els.libraryEmpty.classList.add('hidden');
+                els.libraryCount.textContent = list.length === 1 ? '1 jogo' : list.length + ' jogos';
+
+                const fragment = document.createDocumentFragment();
+                list.forEach(game => {
+                    fragment.appendChild(createLibraryCard(game));
+                });
+                els.libraryGrid.appendChild(fragment);
+            }
+
+            function isPremium() {
+                const plan = currentUser && currentUser.plan ? currentUser.plan.toUpperCase() : 'FREE';
+                return !!(currentUser && (currentUser.premium || plan === 'PREMIUM'));
+            }
+
+            function hasRole(role) {
+                if (!role || !currentUser) {
+                    return false;
+                }
+                const currentRole = (currentUser.role || 'USER').toUpperCase();
+                if (currentRole === 'ADMIN') {
+                    return true;
+                }
+                return currentRole === role.toUpperCase();
+            }
+
+            function updatePlanSection() {
+                if (!els.planBadge) {
+                    return;
+                }
+                const premium = isPremium();
+                const plan = currentUser && currentUser.plan ? currentUser.plan.toUpperCase() : 'FREE';
+                const label = PLAN_LABELS[plan] || plan;
+                els.planBadge.textContent = `Plano atual: ${label}`;
+                els.planBadge.classList.toggle('premium', premium);
+                if (els.planUpgrade) {
+                    els.planUpgrade.disabled = premium;
+                }
+                if (els.planCancel) {
+                    els.planCancel.disabled = !premium;
+                    els.planCancel.classList.toggle('hidden', !premium);
+                }
+            }
+
+            async function subscribePlan() {
+                if (!els.planUpgrade) {
+                    return;
+                }
+                try {
+                    els.planUpgrade.disabled = true;
+                    setStatus('Ativando assinatura Strum+...');
+                    const result = await api('/billing/subscribe', {
+                        method: 'POST',
+                        body: JSON.stringify({ plan: 'PREMIUM' })
+                    });
+                    if (result && result.user) {
+                        currentUser = { ...currentUser, ...result.user };
+                        renderUser(currentUser);
+                    }
+                    updatePlanSection();
+                    updateRoleSections();
+                    setStatus('Plano Strum+ ativado com sucesso!', true);
+                } catch (err) {
+                    setStatus(err.message || 'Nao foi possivel ativar o plano.');
+                } finally {
+                    updatePlanSection();
+                }
+            }
+
+            async function cancelPlan() {
+                if (!els.planCancel) {
+                    return;
+                }
+                try {
+                    els.planCancel.disabled = true;
+                    setStatus('Cancelando assinatura...');
+                    const result = await api('/billing/cancel', { method: 'POST' });
+                    if (result && result.user) {
+                        currentUser = { ...currentUser, ...result.user };
+                        renderUser(currentUser);
+                    }
+                    updatePlanSection();
+                    updateRoleSections();
+                    setStatus('Assinatura cancelada.', true);
+                } catch (err) {
+                    setStatus(err.message || 'Nao foi possivel cancelar a assinatura.');
+                } finally {
+                    if (els.planCancel) {
+                        els.planCancel.disabled = false;
+                    }
+                    updatePlanSection();
+                }
+            }
+
+            let developerLoaded = false;
+            let moderatorLoaded = false;
+            let adminLoaded = false;
+            let developerRequestLoaded = false;
+            let developerRequestData = null;
+
+            function updateRoleSections() {
+                const isAdmin = hasRole('ADMIN');
+                const isDeveloper = hasRole('DEVELOPER');
+                if ((isDeveloper || isAdmin) && els.developerSection) {
+                    loadDeveloperOverview();
+                    if (els.developerRequestSection) {
+                        els.developerRequestSection.classList.add('hidden');
+                    }
+                    if (els.developerGameContainer) {
+                        els.developerGameContainer.classList.remove('hidden');
+                    }
+                } else {
+                    if (els.developerSection) {
+                        els.developerSection.classList.add('hidden');
+                    }
+                    if (els.developerRequestSection) {
+                        loadDeveloperRequest();
+                    }
+                }
+
+                if ((hasRole('MODERATOR') || isAdmin) && els.moderatorSection) {
+                    loadModeratorOverview();
+                } else if (els.moderatorSection) {
+                    els.moderatorSection.classList.add('hidden');
+                }
+
+                if (isAdmin && els.adminSection) {
+                    loadAdminData();
+                } else if (els.adminSection) {
+                    els.adminSection.classList.add('hidden');
+                }
+            }
+
+            function renderDeveloperOverview(data) {
+                if (!els.developerSection) {
+                    return;
+                }
+                const totalGames = data && Number.isFinite(data.totalGames) ? data.totalGames : 0;
+                const premiumPlayers = data && Number.isFinite(data.premiumPlayers) ? data.premiumPlayers : 0;
+                if (els.developerStats) {
+                    els.developerStats.innerHTML = `
+                        <p>Total de jogos publicados: <strong>${totalGames}</strong></p>
+                        <p>Jogadores premium ativos: <strong>${premiumPlayers}</strong></p>
+                    `;
+                }
+                if (els.developerHighlights) {
+                    els.developerHighlights.innerHTML = '';
+                    const highlights = data && Array.isArray(data.highlights) ? data.highlights : [];
+                    if (!highlights.length) {
+                        const li = document.createElement('li');
+                        li.textContent = 'Nenhum destaque cadastrado ainda.';
+                        els.developerHighlights.appendChild(li);
+                    } else {
+                        highlights.forEach(title => {
+                            const li = document.createElement('li');
+                            li.textContent = '• ' + title;
+                            els.developerHighlights.appendChild(li);
+                        });
+                    }
+                }
+                els.developerSection.classList.remove('hidden');
+            }
+
+            async function loadDeveloperOverview() {
+                if (!els.developerSection) {
+                    return;
+                }
+                if (developerLoaded) {
+                    els.developerSection.classList.remove('hidden');
+                    return;
+                }
+                try {
+                    const data = await api('/developer/overview', { method: 'GET' });
+                    renderDeveloperOverview(data);
+                    developerLoaded = true;
+                } catch (err) {
+                    console.warn('Falha ao carregar painel do desenvolvedor', err);
+                    els.developerSection.classList.add('hidden');
+                }
+            }
+
+            function renderModeratorOverview(data) {
+                if (!els.moderatorSection) {
+                    return;
+                }
+                const pending = data && Number.isFinite(data.pendingReports) ? data.pendingReports : 0;
+                const active = data && Number.isFinite(data.activeModerators) ? data.activeModerators : 0;
+                if (els.moderatorSummary) {
+                    els.moderatorSummary.innerHTML = `
+                        <p>Denuncias pendentes: <strong>${pending}</strong></p>
+                        <p>Moderadores ativos: <strong>${active}</strong></p>
+                    `;
+                }
+                if (els.moderatorTasks) {
+                    els.moderatorTasks.innerHTML = '';
+                    const tasks = data && Array.isArray(data.tasks) ? data.tasks : [];
+                    if (!tasks.length) {
+                        const li = document.createElement('li');
+                        li.textContent = 'Nenhuma tarefa pendente no momento.';
+                        els.moderatorTasks.appendChild(li);
+                    } else {
+                        tasks.forEach(task => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<strong>${task.titulo || 'Tarefa'}</strong> — ${task.status || 'PENDENTE'}`;
+                            els.moderatorTasks.appendChild(li);
+                        });
+                    }
+                }
+                els.moderatorSection.classList.remove('hidden');
+            }
+
+            async function loadModeratorOverview() {
+                if (!els.moderatorSection) {
+                    return;
+                }
+                if (moderatorLoaded) {
+                    els.moderatorSection.classList.remove('hidden');
+                    return;
+                }
+                try {
+                    const data = await api('/moderator/overview', { method: 'GET' });
+                    renderModeratorOverview(data);
+                    moderatorLoaded = true;
+                } catch (err) {
+                    console.warn('Painel de moderacao indisponivel', err);
+                    els.moderatorSection.classList.add('hidden');
+                }
+            }
+
+            function renderAdminOverview(data) {
+                if (!els.adminOverview) {
+                    return;
+                }
+                if (!data) {
+                    els.adminOverview.innerHTML = '';
+                    return;
+                }
+                const totalUsers = Number.isFinite(data.totalUsers) ? data.totalUsers : 0;
+                const premiumUsers = Number.isFinite(data.premiumUsers) ? data.premiumUsers : 0;
+                const totalGames = Number.isFinite(data.totalGames) ? data.totalGames : 0;
+                const estimatedRevenue = Number.isFinite(data.estimatedRevenue) ? data.estimatedRevenue : 0;
+                const roles = data.roles && typeof data.roles === 'object' ? data.roles : {};
+                const roleSummary = Object.entries(roles)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([role, count]) => `${ROLE_LABELS[role] || role}: ${count}`)
+                    .join('<br>');
+                els.adminOverview.innerHTML = `
+                    <div class="card">
+                        <small>Usuários cadastrados</small>
+                        <strong>${totalUsers}</strong>
+                    </div>
+                    <div class="card">
+                        <small>Assinantes Strum+</small>
+                        <strong>${premiumUsers}</strong>
+                    </div>
+                    <div class="card">
+                        <small>Jogos na loja</small>
+                        <strong>${totalGames}</strong>
+                    </div>
+                    <div class="card">
+                        <small>Receita estimada</small>
+                        <strong>${money(estimatedRevenue)}</strong>
+                    </div>
+                    <div class="card">
+                        <small>Distribuição de papéis</small>
+                        <strong style="font-size:14px; line-height:1.5;">${roleSummary || 'Sem dados'}</strong>
+                    </div>
+                `;
+            }
+
+            function renderAdminUsers(users) {
+                if (!els.adminUsersBody) {
+                    return;
+                }
+                els.adminUsersBody.innerHTML = '';
+                const list = Array.isArray(users) ? users : [];
+                if (!list.length) {
+                    if (els.adminUsersEmpty) {
+                        els.adminUsersEmpty.classList.remove('hidden');
+                        els.adminUsersEmpty.textContent = 'Nenhum usuário encontrado.';
+                    }
+                    return;
+                }
+                if (els.adminUsersEmpty) {
+                    els.adminUsersEmpty.classList.add('hidden');
+                }
+                list.forEach(user => {
+                    const tr = document.createElement('tr');
+                    const role = (user.role || 'USER').toUpperCase();
+                    const plan = (user.plan || 'FREE').toUpperCase();
+                    const createdAt = unixToDateText(user.createdAt);
+
+                    const emailTd = document.createElement('td');
+                    emailTd.textContent = user.email || '-';
+                    tr.appendChild(emailTd);
+
+                    const roleTd = document.createElement('td');
+                    const roleSelect = document.createElement('select');
+                    ['USER', 'MODERATOR', 'DEVELOPER', 'ADMIN'].forEach(value => {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = ROLE_LABELS[value] || value;
+                        roleSelect.appendChild(option);
+                    });
+                    roleSelect.value = role;
+                    roleSelect.dataset.action = 'role';
+                    roleSelect.dataset.userId = user.id;
+                    roleSelect.dataset.previous = role;
+                    roleTd.appendChild(roleSelect);
+                    tr.appendChild(roleTd);
+
+                    const planTd = document.createElement('td');
+                    const planSelect = document.createElement('select');
+                    ['FREE', 'PREMIUM'].forEach(value => {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = PLAN_LABELS[value] || value;
+                        planSelect.appendChild(option);
+                    });
+                    planSelect.value = plan;
+                    planSelect.dataset.action = 'plan';
+                    planSelect.dataset.userId = user.id;
+                    planSelect.dataset.previous = plan;
+                    planTd.appendChild(planSelect);
+                    tr.appendChild(planTd);
+
+                    const createdTd = document.createElement('td');
+                    createdTd.textContent = createdAt;
+                    tr.appendChild(createdTd);
+
+                    els.adminUsersBody.appendChild(tr);
+                });
+            }
+
+            function renderAdminDeveloperRequests(requests) {
+                if (!els.adminDevRequestsBody) {
+                    return;
+                }
+                els.adminDevRequestsBody.innerHTML = '';
+                const list = Array.isArray(requests) ? requests : [];
+                if (!list.length) {
+                    if (els.adminDevRequestsEmpty) {
+                        els.adminDevRequestsEmpty.classList.remove('hidden');
+                        els.adminDevRequestsEmpty.textContent = 'Nenhuma solicitacao pendente.';
+                    }
+                    return;
+                }
+                if (els.adminDevRequestsEmpty) {
+                    els.adminDevRequestsEmpty.classList.add('hidden');
+                }
+                const fragment = document.createDocumentFragment();
+                list.forEach(request => {
+                    const tr = document.createElement('tr');
+                    const emailTd = document.createElement('td');
+                    emailTd.textContent = request.userEmail || '-';
+                    tr.appendChild(emailTd);
+
+                    const studioTd = document.createElement('td');
+                    studioTd.textContent = request.studioName || '-';
+                    tr.appendChild(studioTd);
+
+                    const cnpjTd = document.createElement('td');
+                    cnpjTd.textContent = request.cnpj || '-';
+                    tr.appendChild(cnpjTd);
+
+                    const statusTd = document.createElement('td');
+                    statusTd.textContent = request.status || 'PENDING';
+                    tr.appendChild(statusTd);
+
+                    const createdTd = document.createElement('td');
+                    createdTd.textContent = unixToDateText(request.createdAt);
+                    tr.appendChild(createdTd);
+
+                    const actionsTd = document.createElement('td');
+                    if ((request.status || '').toUpperCase() === 'PENDING') {
+                        const approveBtn = document.createElement('button');
+                        approveBtn.type = 'button';
+                        approveBtn.className = 'btn btn-primary';
+                        approveBtn.textContent = 'Aprovar';
+                        approveBtn.dataset.devRequestAction = 'approved';
+                        approveBtn.dataset.requestId = String(request.id);
+                        actionsTd.appendChild(approveBtn);
+
+                        const rejectBtn = document.createElement('button');
+                        rejectBtn.type = 'button';
+                        rejectBtn.className = 'btn-secondary';
+                        rejectBtn.style.marginLeft = '8px';
+                        rejectBtn.textContent = 'Rejeitar';
+                        rejectBtn.dataset.devRequestAction = 'rejected';
+                        rejectBtn.dataset.requestId = String(request.id);
+                        actionsTd.appendChild(rejectBtn);
+                    } else {
+                        actionsTd.textContent = request.status || '-';
+                    }
+                    tr.appendChild(actionsTd);
+                    fragment.appendChild(tr);
+                });
+                els.adminDevRequestsBody.appendChild(fragment);
+            }
+
+            async function loadAdminDeveloperRequests() {
+                if (!els.adminDevRequestsBody) {
+                    return;
+                }
+                try {
+                    const data = await api('/admin/developer/requests', { method: 'GET' });
+                    const requests = data && Array.isArray(data.requests) ? data.requests : [];
+                    renderAdminDeveloperRequests(requests);
+                } catch (err) {
+                    console.warn('Falha ao listar solicitacoes de desenvolvedor', err);
+                    if (els.adminDevRequestsEmpty) {
+                        els.adminDevRequestsEmpty.classList.remove('hidden');
+                        els.adminDevRequestsEmpty.textContent = err.message || 'Nao foi possivel carregar as solicitacoes.';
+                    }
+                }
+            }
+
+            async function updateAdminDeveloperRequestStatus(requestId, status) {
+                if (!requestId || !status) {
+                    return;
+                }
+                try {
+                    const result = await api('/admin/developer/requests/status', {
+                        method: 'POST',
+                        body: JSON.stringify({ requestId, status })
+                    });
+                    const message = result && result.message ? result.message : 'Solicitacao atualizada.';
+                    setStatus(message, true);
+                    await Promise.all([
+                        loadAdminDeveloperRequests(),
+                        loadAdminUsers()
+                    ]);
+                } catch (err) {
+                    setStatus(err.message || 'Nao foi possivel atualizar a solicitacao.');
+                }
+            }
+
+            async function loadAdminUsers() {
+                try {
+                    const data = await api('/admin/users', { method: 'GET' });
+                    const users = data && Array.isArray(data.users) ? data.users : [];
+                    renderAdminUsers(users);
+                } catch (err) {
+                    console.warn('Falha ao listar usuários', err);
+                    if (els.adminUsersEmpty) {
+                        els.adminUsersEmpty.classList.remove('hidden');
+                        els.adminUsersEmpty.textContent = err.message || 'Nao foi possivel carregar os usuarios.';
+                    }
+                }
+            }
+
+            async function loadAdminData() {
+                if (!els.adminSection) {
+                    return;
+                }
+                if (!adminLoaded) {
+                    try {
+                        const overview = await api('/admin/overview', { method: 'GET' });
+                        renderAdminOverview(overview);
+                        adminLoaded = true;
+                    } catch (err) {
+                        console.warn('Painel administrativo indisponivel', err);
+                        els.adminSection.classList.add('hidden');
+                        return;
+                    }
+                }
+                els.adminSection.classList.remove('hidden');
+                await Promise.all([
+                    loadAdminUsers(),
+                    loadAdminDeveloperRequests()
+                ]);
+            }
+
+            async function updateUserRole(userId, role, select) {
+                if (!userId || !role) {
+                    return;
+                }
+                try {
+                    const result = await api('/admin/users/role', {
+                        method: 'POST',
+                        body: JSON.stringify({ userId, role })
+                    });
+                    if (result && result.user) {
+                        const updatedRole = (result.user.role || role).toUpperCase();
+                        if (select) {
+                            select.dataset.previous = updatedRole;
+                            select.value = updatedRole;
+                        }
+                        if (currentUser && result.user.email && result.user.email === currentUser.email) {
+                            currentUser = { ...currentUser, ...result.user };
+                            renderUser(currentUser);
+                            developerLoaded = false;
+                            moderatorLoaded = false;
+                            updateRoleSections();
+                        }
+                        setStatus('Permissao atualizada.', true);
+                        adminLoaded = false;
+                        loadAdminData();
+                    }
+                } catch (err) {
+                    if (select) {
+                        select.value = select.dataset.previous || select.value;
+                    }
+                    setStatus(err.message || 'Nao foi possivel atualizar o papel.');
+                }
+            }
+
+            async function updateUserPlan(userId, plan, select) {
+                if (!userId || !plan) {
+                    return;
+                }
+                try {
+                    const result = await api('/admin/users/plan', {
+                        method: 'POST',
+                        body: JSON.stringify({ userId, plan })
+                    });
+                    if (result && result.user) {
+                        const updatedPlan = (result.user.plan || plan).toUpperCase();
+                        if (select) {
+                            select.dataset.previous = updatedPlan;
+                            select.value = updatedPlan;
+                        }
+                        if (currentUser && result.user.email && result.user.email === currentUser.email) {
+                            currentUser = { ...currentUser, ...result.user };
+                            renderUser(currentUser);
+                            updatePlanSection();
+                        }
+                        setStatus('Plano do usuario atualizado.', true);
+                        adminLoaded = false;
+                        loadAdminData();
+                    }
+                } catch (err) {
+                    if (select) {
+                        select.value = select.dataset.previous || select.value;
+                    }
+                    setStatus(err.message || 'Nao foi possivel atualizar o plano.');
+                }
+            }
+
+            function handleAdminUserChange(event) {
+                const target = event.target;
+                if (!target || target.tagName !== 'SELECT') {
+                    return;
+                }
+                const userId = Number(target.dataset.userId);
+                if (!userId) {
+                    return;
+                }
+                const action = target.dataset.action;
+                if (action === 'role') {
+                    updateUserRole(userId, target.value, target);
+                } else if (action === 'plan') {
+                    updateUserPlan(userId, target.value, target);
+                }
+            }
+
+            async function submitDeveloperGame(event) {
+                event.preventDefault();
+                if (!els.developerGameForm) {
+                    return;
+                }
+                const name = els.developerGameName ? els.developerGameName.value.trim() : '';
+                const priceValue = els.developerGamePrice ? Number(els.developerGamePrice.value) : NaN;
+                const promo = els.developerGamePromo ? els.developerGamePromo.value === 'true' : false;
+                if (!name) {
+                    setDeveloperGameFeedback('Informe o nome do jogo.', true);
+                    return;
+                }
+                if (!Number.isFinite(priceValue)) {
+                    setDeveloperGameFeedback('Informe um preco valido.', true);
+                    return;
+                }
+                const submitBtn = els.developerGameForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+                let imageData = null;
+                try {
+                    imageData = await ensureImageData(els.developerGameImage);
+                } catch (imageErr) {
+                    setDeveloperGameFeedback(imageErr.message || IMAGE_ERROR_INVALID, true);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                    return;
+                }
+                setDeveloperGameFeedback('Enviando jogo para aprovacao...');
+                try {
+                    await api('/developer/games', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name,
+                            price: priceValue,
+                            image: imageData,
+                            promo,
+                            status: 'PENDING'
+                        })
+                    });
+                    els.developerGameForm.reset();
+                    resetImageInput(els.developerGameImage, els.developerGamePreview, els.developerGamePreviewImage);
+                    setDeveloperGameFeedback('Jogo enviado! Aguarde a aprovacao.', false);
+                    developerLoaded = false;
+                    loadDeveloperOverview();
+                } catch (err) {
+                    setDeveloperGameFeedback(err.message || 'Nao foi possivel enviar o jogo.', true);
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                }
+            }
+
+            async function submitAdminGame(event) {
+                event.preventDefault();
+                if (!els.adminGameForm) {
+                    return;
+                }
+                const name = els.adminGameName ? els.adminGameName.value.trim() : '';
+                const price = els.adminGamePrice ? parseFloat(els.adminGamePrice.value) : NaN;
+                const promo = els.adminGamePromo ? els.adminGamePromo.value === 'true' : false;
+                if (!name || Number.isNaN(price)) {
+                    if (els.adminGameFeedback) {
+                        els.adminGameFeedback.textContent = 'Informe nome e preco validos.';
+                        els.adminGameFeedback.classList.add('error');
+                    }
+                    return;
+                }
+                const submitBtn = els.adminGameForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+                let imageData = null;
+                try {
+                    imageData = await ensureImageData(els.adminGameImage);
+                } catch (imageErr) {
+                    if (els.adminGameFeedback) {
+                        els.adminGameFeedback.textContent = imageErr.message || IMAGE_ERROR_INVALID;
+                        els.adminGameFeedback.classList.add('error');
+                    }
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                    return;
+                }
+                if (els.adminGameFeedback) {
+                    els.adminGameFeedback.textContent = 'Adicionando jogo...';
+                    els.adminGameFeedback.classList.remove('error');
+                }
+                try {
+                    await api('/admin/games', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name,
+                            price,
+                            image: imageData,
+                            promo
+                        })
+                    });
+                    els.adminGameForm.reset();
+                    resetImageInput(els.adminGameImage, els.adminGamePreview, els.adminGamePreviewImage);
+                    if (els.adminGameFeedback) {
+                        els.adminGameFeedback.textContent = 'Jogo cadastrado com sucesso!';
+                    }
+                    developerLoaded = false;
+                    loadDeveloperOverview();
+                    loadAdminData();
+                    setStatus('Novo jogo adicionado ao catalogo.', true);
+                } catch (err) {
+                    if (els.adminGameFeedback) {
+                        els.adminGameFeedback.textContent = err.message || 'Nao foi possivel adicionar o jogo.';
+                        els.adminGameFeedback.classList.add('error');
+                    }
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                }
+            }
+
+            async function loadProfile() {
+                const token = getToken();
+                if (!token) {
+                    alert('Sua sessao expirou. Entre novamente.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                setStatus('Carregando seus dados...');
+                const snapshot = loadLibrarySnapshot();
+                if (snapshot && snapshot.length) {
+                    renderLibrary(snapshot);
+                    setStatus('Sincronizando com o servidor...', true);
+                }
+                try {
+                    const [userData, libraryData] = await Promise.all([
+                        api('/auth/me', { method: 'GET' }),
+                        api('/users/library', { method: 'GET' })
+                    ]);
+                    currentUser = {
+                        email: userData.email,
+                        createdAt: userData.createdAt,
+                        role: userData.role,
+                        plan: userData.plan,
+                        premium: userData.premium
+                    };
+                    developerLoaded = false;
+                    moderatorLoaded = false;
+                    adminLoaded = false;
+                    renderUser(currentUser);
+                    updatePlanSection();
+                    updateRoleSections();
+
+                    const games = Array.isArray(libraryData)
+                        ? libraryData
+                        : (libraryData && Array.isArray(libraryData.games) ? libraryData.games : []);
+                    renderLibrary(games);
+                    saveLibrarySnapshot(games);
+
+                    setStatus(games.length ? 'Biblioteca atualizada.' : 'Nenhum jogo encontrado ainda.', games.length > 0);
+                } catch (err) {
+                    console.error('Falha ao carregar perfil', err);
+                    setStatus(err.message || 'Nao foi possivel carregar seu perfil.');
+                    clearToken();
+                    clearLibrarySnapshot();
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } finally {
+                    updateAuthUI();
+                }
+            }
+
+            if (els.logoutBtn) {
+                els.logoutBtn.addEventListener('click', async () => {
+                    try {
+                        await api('/auth/logout', { method: 'POST' });
+                    } catch (err) {
+                        console.warn('Falha ao encerrar sessao', err);
+                    }
+                    clearToken();
+                    clearLibrarySnapshot();
+                    window.location.href = 'index.html';
+                });
+            }
+
+            if (els.planUpgrade) {
+                els.planUpgrade.addEventListener('click', () => {
+                    subscribePlan();
+                });
+            }
+
+            if (els.planCancel) {
+                els.planCancel.addEventListener('click', () => {
+                    cancelPlan();
+                });
+            }
+
+            if (els.developerRequestToggle) {
+                els.developerRequestToggle.addEventListener('click', () => {
+                    if (!els.developerRequestForm || els.developerRequestToggle.disabled) {
+                        return;
+                    }
+                    const shouldOpen = els.developerRequestForm.classList.contains('hidden');
+                    if (shouldOpen) {
+                        setDeveloperRequestFeedback('');
+                    }
+                    showDeveloperRequestForm(shouldOpen);
+                    updateDeveloperRequestUI();
+                });
+            }
+
+            if (els.developerRequestForm) {
+                els.developerRequestForm.addEventListener('submit', submitDeveloperRequest);
+            }
+
+            if (els.adminUsersBody) {
+                els.adminUsersBody.addEventListener('change', handleAdminUserChange);
+            }
+
+            if (els.adminReloadUsers) {
+                els.adminReloadUsers.addEventListener('click', () => {
+                    loadAdminUsers();
+                });
+            }
+
+            if (els.adminDevRequestsBody) {
+                els.adminDevRequestsBody.addEventListener('click', event => {
+                    const target = event.target.closest('[data-dev-request-action]');
+                    if (!target) {
+                        return;
+                    }
+                    const requestId = Number(target.dataset.requestId);
+                    const action = target.dataset.devRequestAction ? target.dataset.devRequestAction.toUpperCase() : '';
+                    if (!requestId || !action) {
+                        return;
+                    }
+                    updateAdminDeveloperRequestStatus(requestId, action);
+                });
+            }
+
+            if (els.adminReloadDevRequests) {
+                els.adminReloadDevRequests.addEventListener('click', () => {
+                    loadAdminDeveloperRequests();
+                });
+            }
+
+            bindImageInput(els.adminGameImage, els.adminGamePreview, els.adminGamePreviewImage, els.adminGameFeedback);
+            bindImageInput(els.developerGameImage, els.developerGamePreview, els.developerGamePreviewImage, els.developerGameFeedback);
+
+            if (els.adminGameForm) {
+                els.adminGameForm.addEventListener('reset', () => {
+                    resetImageInput(els.adminGameImage, els.adminGamePreview, els.adminGamePreviewImage);
+                    clearImageFeedbackIfNeeded(els.adminGameFeedback);
+                });
+                els.adminGameForm.addEventListener('submit', submitAdminGame);
+            }
+
+            if (els.developerGameForm) {
+                els.developerGameForm.addEventListener('reset', () => {
+                    resetImageInput(els.developerGameImage, els.developerGamePreview, els.developerGamePreviewImage);
+                    setDeveloperGameFeedback('');
+                });
+                els.developerGameForm.addEventListener('submit', submitDeveloperGame);
+            }
+
+            loadProfile();
+        });
+    </script>
+</body>
+</html>
