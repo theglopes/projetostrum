@@ -17,8 +17,6 @@ public class AuthService {
     private static final long SESSION_TTL_SECONDS = 60L * 60L * 24L; // 24h
     private static final String DEFAULT_ROLE = "USER";
     private static final String DEFAULT_PLAN = "FREE";
-    private static final String DEFAULT_ADMIN_EMAIL = "test";
-    private static final String DEFAULT_ADMIN_PASSWORD = "test";
 
     public Optional<User> register(String email, String password) {
         String normalized = normalizeEmail(email);
