@@ -129,50 +129,15 @@ public class AuthService {
     }
 
     public void ensureDefaultAdmin() {
-        String normalized = normalizeEmail(DEFAULT_ADMIN_EMAIL);
-        if (normalized == null) {
-            return;
-        }
-
-        try (Connection conn = Database.getConnection()) {
-            conn.setAutoCommit(false);
-
-            Integer userId = null;
-            String currentRole = null;
-            try (PreparedStatement ps = conn.prepareStatement("SELECT id, role FROM users WHERE email = ?")) {
-                ps.setString(1, normalized);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        userId = rs.getInt("id");
-                        currentRole = rs.getString("role");
-                    }
-                }
+        String sql = "SELECT 1 FROM users WHERE role = 'ADMIN' LIMIT 1";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) {
+                throw new IllegalStateException("Nenhum administrador cadastrado. Cadastre manualmente no banco.");
             }
-
-            if (userId == null) {
-                String hashed = PasswordUtils.hashPassword(DEFAULT_ADMIN_PASSWORD);
-                long now = Database.unixNow();
-                try (PreparedStatement insert = conn.prepareStatement(
-                    "INSERT INTO users(email, password_hash, role, plan, created_at) VALUES (?, ?, ?, ?, ?)",
-                    PreparedStatement.RETURN_GENERATED_KEYS
-                )) {
-                    insert.setString(1, normalized);
-                    insert.setString(2, hashed);
-                    insert.setString(3, "ADMIN");
-                    insert.setString(4, "PREMIUM");
-                    insert.setLong(5, now);
-                    insert.executeUpdate();
-                }
-            } else if (!"ADMIN".equalsIgnoreCase(currentRole)) {
-                try (PreparedStatement update = conn.prepareStatement("UPDATE users SET role = 'ADMIN' WHERE id = ?")) {
-                    update.setInt(1, userId);
-                    update.executeUpdate();
-                }
-            }
-
-            conn.commit();
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao garantir administrador padrão", e);
+            throw new RuntimeException("Erro ao validar administrador padrao", e);
         }
     }
 

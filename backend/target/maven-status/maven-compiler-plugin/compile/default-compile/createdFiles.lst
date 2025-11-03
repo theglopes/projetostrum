@@ -1,10 +1,16 @@
+com\loja\server\Server.class
 com\loja\services\OrderService$CheckoutItem.class
 com\loja\models\User.class
 com\loja\utils\ConsoleUtils.class
+com\loja\server\Server$CheckoutItemPayload.class
 com\loja\services\OrderService$CheckoutResult.class
+com\loja\services\UserService.class
 com\loja\services\AuthService.class
 com\loja\utils\PasswordUtils.class
 com\loja\models\Game.class
 com\loja\services\GameService.class
+com\loja\server\Server$CheckoutPayload.class
 com\loja\services\OrderService.class
+com\loja\models\DeveloperRequest.class
+com\loja\services\DeveloperRequestService.class
 com\loja\db\Database.class
