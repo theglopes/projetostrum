@@ -143,13 +143,17 @@
 
         <nav class="header-bottom">
             <div class="nav-links">
-                <a href="#">LOJA</a>
-                <a href="#">COMUNIDADE</a>
+                <a href="index.html" aria-current="page">LOJA</a>
+                <a href="comunidade.html">COMUNIDADE</a>
                 <a href="sobre.html">SOBRE</a>
-                <a href="#">SUPORTE</a>
+                <a href="suporte.html">SUPORTE</a>
+                <a href="biblioteca.html">MINHA BIBLIOTECA</a>
             </div>
             <div class="nav-actions">
-                <button type="button" class="nav-action icon-cart" aria-label="Abrir carrinho">Carrinho</button>
+                <button type="button" class="nav-action icon-cart" aria-label="Abrir carrinho">
+                    Carrinho
+                    <span class="cart-badge hidden" id="cart-badge">0</span>
+                </button>
                 <button type="button" class="nav-action icon-login" id="btn-login" aria-haspopup="dialog">Login</button>
                 <div class="nav-user hidden" id="nav-user" aria-live="polite">
                     <span id="nav-user-email"></span>
@@ -285,7 +289,7 @@
     <aside class="cart-drawer" id="cart-drawer" aria-hidden="true" aria-label="Carrinho">
         <div class="cart-header">
             <h3>Seu Carrinho</h3>
-            <span class="cart-close" id="cart-close">🛒•</span>
+            <span class="cart-close" id="cart-close">🛒</span>
         </div>
         <div class="cart-items" id="cart-items">
             <div class="cart-empty">Seu carrinho esta vazio.</div>
@@ -298,6 +302,51 @@
             </div>
         </div>
     </aside>
+
+    <div class="checkout-modal" id="checkout-modal" aria-hidden="true">
+        <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+            <button type="button" class="checkout-close" id="checkout-close" aria-label="Fechar pagamento">×</button>
+            <h3 id="checkout-title">Pagamento seguro</h3>
+            <p class="checkout-subtitle">Finalize seu pedido informando os dados do cartão. Nenhuma informação sensível é armazenada.</p>
+            <div class="checkout-summary">
+                <div class="checkout-total">
+                    <span>Total da compra</span>
+                    <strong id="checkout-total">R$ 0,00</strong>
+                </div>
+                <ul class="checkout-items" id="checkout-items"></ul>
+            </div>
+            <form class="checkout-form" id="checkout-form" novalidate>
+                <div class="form-row">
+                    <label for="checkout-card-name">Nome impresso no cartão</label>
+                    <input type="text" id="checkout-card-name" name="cardName" placeholder="Nome do titular" autocomplete="cc-name" required>
+                </div>
+                <div class="form-row">
+                    <label for="checkout-card-number">Número do cartão</label>
+                    <input type="text" id="checkout-card-number" name="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="23" required>
+                </div>
+                <div class="form-row split">
+                    <div>
+                        <label for="checkout-expiry">Validade (MM/AA)</label>
+                        <input type="text" id="checkout-expiry" name="cardExpiry" inputmode="numeric" autocomplete="cc-exp" placeholder="08/28" maxlength="5" required>
+                    </div>
+                    <div>
+                        <label for="checkout-cvv">CVV</label>
+                        <input type="password" id="checkout-cvv" name="cardCvv" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="checkout-cpf">CPF do titular (opcional)</label>
+                    <input type="text" id="checkout-cpf" name="cardCpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
+                </div>
+                <p class="checkout-feedback hidden" id="checkout-feedback" role="alert"></p>
+                <div class="checkout-actions">
+                    <button type="button" class="btn btn-secondary" id="checkout-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="checkout-submit">Confirmar pagamento</button>
+                </div>
+                <small class="checkout-safe-note">Os dados acima são utilizados apenas durante esta simulação de pagamento e não ficam salvos.</small>
+            </form>
+        </div>
+    </div>
 
     <footer>
         © 2025 Strum LTDA. Todos os direitos reservados.
@@ -313,6 +362,7 @@
             let backendGames = [];
             const gameIndex = new Map();
             let currentUser = null;
+            let checkoutSession = null;
 
             const els = {
                 cartDrawer: document.getElementById('cart-drawer'),
@@ -322,6 +372,7 @@
                 cartTotal: document.getElementById('cart-total'),
                 cartClear: document.getElementById('cart-clear'),
                 cartCheckout: document.getElementById('cart-checkout'),
+                cartBadge: document.getElementById('cart-badge'),
                 navCart: document.querySelector('.icon-cart'),
                 loginBtn: document.getElementById('btn-login'),
                 logoutBtn: document.getElementById('btn-logout'),
@@ -340,7 +391,20 @@
                 catalogModal: document.getElementById('catalog-section'),
                 catalogList: document.getElementById('catalog-grid'),
                 catalogEmpty: document.getElementById('catalog-empty'),
-                catalogCloseBtn: document.getElementById('catalog-close-btn')
+                catalogCloseBtn: document.getElementById('catalog-close-btn'),
+                checkoutModal: document.getElementById('checkout-modal'),
+                checkoutForm: document.getElementById('checkout-form'),
+                checkoutClose: document.getElementById('checkout-close'),
+                checkoutCancel: document.getElementById('checkout-cancel'),
+                checkoutItems: document.getElementById('checkout-items'),
+                checkoutTotal: document.getElementById('checkout-total'),
+                checkoutFeedback: document.getElementById('checkout-feedback'),
+                checkoutSubmit: document.getElementById('checkout-submit'),
+                checkoutCardNumber: document.getElementById('checkout-card-number'),
+                checkoutExpiry: document.getElementById('checkout-expiry'),
+                checkoutCpf: document.getElementById('checkout-cpf'),
+                checkoutCardName: document.getElementById('checkout-card-name'),
+                checkoutCvv: document.getElementById('checkout-cvv')
             };
 
             function money(value) {
@@ -397,6 +461,21 @@
                 localStorage.setItem(CART_KEY, JSON.stringify(cart));
             };
 
+            function updateCartBadge(count) {
+                if (!els.cartBadge) {
+                    return;
+                }
+                const badge = els.cartBadge;
+                const total = Number(count) || 0;
+                if (total <= 0) {
+                    badge.textContent = '0';
+                    badge.classList.add('hidden');
+                    return;
+                }
+                badge.textContent = total > 99 ? '99+' : String(total);
+                badge.classList.remove('hidden');
+            }
+
             function saveLibrarySnapshot(library) {
                 if (!library) return;
                 const games = Array.isArray(library) ? library : (library.games || []);
@@ -443,9 +522,11 @@
                     if (els.cartTotal) {
                         els.cartTotal.textContent = 'R$ 0,00';
                     }
+                    updateCartBadge(0);
                     return;
                 }
                 let total = 0;
+                let totalItems = 0;
                 cart.forEach((item, idx) => {
                     const row = document.createElement('div');
                     row.className = 'cart-item';
@@ -476,10 +557,171 @@
                     row.appendChild(remove);
                     els.cartItems.appendChild(row);
                     total += item.price * (item.qty || 1);
+                    totalItems += item.qty && item.qty > 0 ? item.qty : 1;
                 });
                 if (els.cartTotal) {
                     els.cartTotal.textContent = money(total);
                 }
+                updateCartBadge(totalItems);
+            }
+
+            function setCheckoutFeedback(message, tone = 'info') {
+                if (!els.checkoutFeedback) return;
+                els.checkoutFeedback.textContent = message || '';
+                els.checkoutFeedback.classList.remove('error', 'success');
+                if (!message) {
+                    els.checkoutFeedback.classList.add('hidden');
+                    return;
+                }
+                els.checkoutFeedback.classList.remove('hidden');
+                if (tone === 'error') {
+                    els.checkoutFeedback.classList.add('error');
+                } else if (tone === 'success') {
+                    els.checkoutFeedback.classList.add('success');
+                }
+            }
+
+            function populateCheckoutItems(list) {
+                if (!els.checkoutItems) {
+                    return;
+                }
+                els.checkoutItems.innerHTML = '';
+                const items = Array.isArray(list) ? list : [];
+                if (!items.length) {
+                    const empty = document.createElement('li');
+                    empty.textContent = 'Carrinho vazio';
+                    els.checkoutItems.appendChild(empty);
+                    return;
+                }
+                items.forEach(entry => {
+                    const li = document.createElement('li');
+                    const name = document.createElement('span');
+                    name.textContent = entry.name + (entry.qty > 1 ? ` x${entry.qty}` : '');
+                    const total = document.createElement('strong');
+                    total.textContent = money(entry.price * entry.qty);
+                    li.appendChild(name);
+                    li.appendChild(total);
+                    els.checkoutItems.appendChild(li);
+                });
+            }
+
+            function openCheckoutModal(session) {
+                checkoutSession = session;
+                if (els.checkoutForm) {
+                    els.checkoutForm.reset();
+                }
+                setCheckoutFeedback('');
+                if (els.checkoutTotal) {
+                    els.checkoutTotal.textContent = money(session.total);
+                }
+                populateCheckoutItems(session.cartSnapshot);
+                if (els.checkoutModal) {
+                    els.checkoutModal.classList.add('open');
+                    els.checkoutModal.setAttribute('aria-hidden', 'false');
+                }
+                document.body.style.overflow = 'hidden';
+                if (els.checkoutSubmit) {
+                    els.checkoutSubmit.disabled = false;
+                }
+                requestAnimationFrame(() => {
+                    if (els.checkoutCardName) {
+                        els.checkoutCardName.focus();
+                    }
+                });
+            }
+
+            function closeCheckoutModal() {
+                const wasOpen = els.checkoutModal && els.checkoutModal.classList.contains('open');
+                if (els.checkoutModal) {
+                    els.checkoutModal.classList.remove('open');
+                    els.checkoutModal.setAttribute('aria-hidden', 'true');
+                }
+                if (els.checkoutForm) {
+                    els.checkoutForm.reset();
+                }
+                setCheckoutFeedback('');
+                checkoutSession = null;
+                if (wasOpen) {
+                    document.body.style.overflow = '';
+                }
+            }
+
+            function detectCardBrand(number) {
+                if (!number) return 'DESCONHECIDA';
+                if (/^4/.test(number)) return 'VISA';
+                if (/^5[1-5]/.test(number)) return 'MASTERCARD';
+                if (/^3[47]/.test(number)) return 'AMEX';
+                if (/^3(?:0[0-5]|[68])/.test(number)) return 'DINERS';
+                if (/^6(?:011|5)/.test(number)) return 'DISCOVER';
+                if (/^(?:2131|1800|35)/.test(number)) return 'JCB';
+                if (/^63/.test(number)) return 'HIPER';
+                if (/^50/.test(number)) return 'AURA';
+                return 'DESCONHECIDA';
+            }
+
+            async function buildCheckoutSession() {
+                const cart = loadCart();
+                if (!cart.length) {
+                    alert('Carrinho vazio.');
+                    return null;
+                }
+                if (!currentUser) {
+                    closeCart();
+                    openAuthModal('login', 'Faça login para finalizar sua compra.');
+                    return null;
+                }
+                const items = cart
+                    .map(item => ({
+                        gameId: Number(item.gameId),
+                        quantity: item.qty || 1
+                    }))
+                    .filter(item => Number.isInteger(item.gameId) && item.gameId > 0);
+                if (!items.length) {
+                    alert('Sincronizando itens com o catálogo. Tente novamente.');
+                    await loadCatalog();
+                    upgradeCartFromBackend();
+                    return null;
+                }
+                const snapshot = cart.map(entry => ({
+                    name: entry.name,
+                    qty: entry.qty || 1,
+                    price: Number(entry.price) || 0
+                }));
+                const total = snapshot.reduce((sum, entry) => sum + entry.price * entry.qty, 0);
+                return {
+                    items,
+                    cartSnapshot: snapshot,
+                    total
+                };
+            }
+
+            function formatCardNumber(value) {
+                const digits = value.replace(/\D/g, '').slice(0, 19);
+                return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+            }
+
+            function formatExpiry(value) {
+                const digits = value.replace(/\D/g, '').slice(0, 4);
+                if (digits.length <= 2) {
+                    return digits;
+                }
+                return digits.slice(0, 2) + '/' + digits.slice(2);
+            }
+
+            function formatCpf(value) {
+                const digits = value.replace(/\D/g, '').slice(0, 11);
+                const parts = [];
+                if (digits.length > 0) parts.push(digits.slice(0, Math.min(3, digits.length)));
+                if (digits.length > 3) parts.push(digits.slice(3, Math.min(6, digits.length)));
+                if (digits.length > 6) parts.push(digits.slice(6, Math.min(9, digits.length)));
+                const remainder = digits.length > 9 ? digits.slice(9) : '';
+                let formatted = parts
+                    .filter(Boolean)
+                    .join('.');
+                if (remainder) {
+                    formatted += (formatted ? '-' : '') + remainder;
+                }
+                return formatted;
             }
 
             function renderCatalogModal() {
@@ -944,50 +1186,103 @@
             }
 
             async function handleCheckout() {
-                const cart = loadCart();
-                if (!cart.length) {
-                    alert('Carrinho vazio.');
+                const session = await buildCheckoutSession();
+                if (!session) {
                     return;
                 }
-                if (!currentUser) {
-                    closeCart();
-                    openAuthModal('login', 'Faça login para finalizar sua compra.');
+                closeCart();
+                openCheckoutModal(session);
+            }
+
+            async function submitCheckout(event) {
+                event.preventDefault();
+                if (!checkoutSession || !checkoutSession.items || !checkoutSession.items.length) {
+                    setCheckoutFeedback('Não encontramos seu carrinho. Abra o carrinho e tente novamente.', 'error');
                     return;
                 }
-                const items = cart
-                    .map(item => ({ gameId: Number(item.gameId), quantity: item.qty || 1 }))
-                    .filter(item => Number.isInteger(item.gameId) && item.gameId > 0);
-                if (!items.length) {
-                    alert('Sincronizando itens com o catalogo. Tente novamente.');
-                    await loadCatalog();
-                    upgradeCartFromBackend();
+                const form = event.currentTarget;
+                const name = (form.cardName.value || '').trim();
+                const rawNumber = form.cardNumber.value || '';
+                const sanitizedNumber = rawNumber.replace(/\D/g, '').slice(0, 19);
+                const expiry = (form.cardExpiry.value || '').trim();
+                const cvv = (form.cardCvv.value || '').trim();
+                const cpf = (form.cardCpf.value || '').replace(/\D/g, '').trim();
+
+                if (name.length < 3) {
+                    setCheckoutFeedback('Informe o nome completo do titular.', 'error');
+                    form.cardName.focus();
                     return;
                 }
+                if (!/^\d{13,19}$/.test(sanitizedNumber)) {
+                    setCheckoutFeedback('Número do cartão inválido.', 'error');
+                    form.cardNumber.focus();
+                    return;
+                }
+                if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) {
+                    setCheckoutFeedback('Informe a validade no formato MM/AA.', 'error');
+                    form.cardExpiry.focus();
+                    return;
+                }
+                const [expMonthStr, expYearStr] = expiry.split('/');
+                const expMonth = Number(expMonthStr);
+                const expYear = Number('20' + expYearStr);
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth() + 1;
+                if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+                    setCheckoutFeedback('Este cartão está expirado.', 'error');
+                    form.cardExpiry.focus();
+                    return;
+                }
+                if (!/^\d{3,4}$/.test(cvv)) {
+                    setCheckoutFeedback('CVV inválido.', 'error');
+                    form.cardCvv.focus();
+                    return;
+                }
+                if (cpf && cpf.length !== 11) {
+                    setCheckoutFeedback('CPF informado parece incorreto.', 'error');
+                    form.cardCpf.focus();
+                    return;
+                }
+
+                const totalFormatted = checkoutSession ? money(checkoutSession.total) : null;
+                setCheckoutFeedback('Processando o pagamento...', 'info');
+                if (els.checkoutSubmit) {
+                    els.checkoutSubmit.disabled = true;
+                }
+
                 try {
-                    if (els.cartCheckout) {
-                        els.cartCheckout.disabled = true;
-                    }
+                    const payment = {
+                        holder: name,
+                        last4: sanitizedNumber.slice(-4),
+                        brand: detectCardBrand(sanitizedNumber),
+                        expiry
+                    };
                     const result = await api('/cart/checkout', {
                         method: 'POST',
-                        body: JSON.stringify({ items })
+                        body: JSON.stringify({
+                            items: checkoutSession.items,
+                            payment
+                        })
                     });
                     if (result && result.library) {
                         saveLibrarySnapshot(result.library);
                     }
-                    showToast('Pedido registrado com sucesso!');
                     saveCart([]);
                     renderCart();
+                    closeCheckoutModal();
+                    const successMessage = totalFormatted ? 'Pagamento aprovado! Total de ' + totalFormatted + '.' : 'Pagamento aprovado!';
+                    showToast(successMessage);
                     closeCart();
                 } catch (err) {
                     console.error(err);
-                    alert(err.message || 'Não foi possível concluir o checkout.');
+                    setCheckoutFeedback(err.message || 'Não foi possível concluir o pagamento.', 'error');
                 } finally {
-                    if (els.cartCheckout) {
-                        els.cartCheckout.disabled = false;
+                    if (els.checkoutSubmit) {
+                        els.checkoutSubmit.disabled = false;
                     }
                 }
             }
-
             async function loadCatalog() {
                 try {
                     const response = await fetch(API_BASE + '/games');
@@ -1038,6 +1333,46 @@
                 els.cartCheckout.addEventListener('click', handleCheckout);
             }
 
+            if (els.checkoutClose) {
+                els.checkoutClose.addEventListener('click', closeCheckoutModal);
+            }
+            if (els.checkoutCancel) {
+                els.checkoutCancel.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    closeCheckoutModal();
+                });
+            }
+            if (els.checkoutModal) {
+                els.checkoutModal.addEventListener('click', (event) => {
+                    if (event.target === els.checkoutModal) {
+                        closeCheckoutModal();
+                    }
+                });
+            }
+            if (els.checkoutForm) {
+                els.checkoutForm.addEventListener('submit', submitCheckout);
+            }
+            if (els.checkoutCardNumber) {
+                els.checkoutCardNumber.addEventListener('input', (event) => {
+                    event.target.value = formatCardNumber(event.target.value);
+                });
+            }
+            if (els.checkoutExpiry) {
+                els.checkoutExpiry.addEventListener('input', (event) => {
+                    event.target.value = formatExpiry(event.target.value);
+                });
+            }
+            if (els.checkoutCpf) {
+                els.checkoutCpf.addEventListener('input', (event) => {
+                    event.target.value = formatCpf(event.target.value);
+                });
+            }
+            if (els.checkoutCvv) {
+                els.checkoutCvv.addEventListener('input', (event) => {
+                    event.target.value = event.target.value.replace(/\D/g, '').slice(0, 4);
+                });
+            }
+
             if (els.verMaisBtn) {
                 els.verMaisBtn.addEventListener('click', (event) => {
                     event.preventDefault();
@@ -1065,6 +1400,7 @@
                     currentUser = null;
                     updateAuthUI();
                     closeCatalogModal();
+                    closeCheckoutModal();
                     showToast('Voce saiu da conta.');
                 });
             }
@@ -1087,6 +1423,9 @@
                 }
                 if (els.catalogModal && !els.catalogModal.classList.contains('hidden')) {
                     closeCatalogModal();
+                }
+                if (els.checkoutModal && els.checkoutModal.classList.contains('open')) {
+                    closeCheckoutModal();
                 }
             });
 
@@ -1173,3 +1512,6 @@
     </script>
     </body>
 </html>
+
+
+

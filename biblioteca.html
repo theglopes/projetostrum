@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strum - Minha Biblioteca</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .library-wrapper {
+            width: 100%;
+            max-width: 1120px;
+            margin: 96px auto 120px;
+            padding: 0 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .library-hero {
+            background: linear-gradient(120deg, rgba(159, 82, 255, 0.18), rgba(19, 19, 19, 0.92));
+            border: 1px solid rgba(159, 82, 255, 0.35);
+            border-radius: 18px;
+            padding: 40px 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .library-hero h1 {
+            font-size: 34px;
+            color: #ffffff;
+        }
+        .library-hero p {
+            color: #d6d6ff;
+            max-width: 640px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .library-status {
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(159, 82, 255, 0.28);
+            background: rgba(22, 24, 38, 0.92);
+            color: #d8d8ff;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+        }
+        .library-status.positive {
+            border-color: rgba(125, 255, 128, 0.42);
+            background: rgba(20, 38, 26, 0.92);
+            color: #baf5c5;
+        }
+        .library-status.error {
+            border-color: rgba(255, 120, 120, 0.45);
+            background: rgba(48, 18, 22, 0.92);
+            color: #ffb6b6;
+        }
+        @media (max-width: 720px) {
+            .library-wrapper {
+                padding: 0 20px;
+                margin-top: 72px;
+            }
+            .library-hero {
+                padding: 32px 24px;
+            }
+            .library-hero h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+            </div>
+        </div>
+
+        <nav class="header-bottom">
+            <a href="index.html">LOJA</a>
+            <a href="comunidade.html">COMUNIDADE</a>
+            <a href="sobre.html">SOBRE</a>
+            <a href="suporte.html">SUPORTE</a>
+            <a href="biblioteca.html" aria-current="page">MINHA BIBLIOTECA</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="library-wrapper">
+            <div class="library-hero">
+                <h1>Minha Biblioteca</h1>
+                <p id="library-hero-subtitle">
+                    Acompanhe aqui os jogos que você garantiu na Strum. Sincronizamos automaticamente com sua conta.
+                </p>
+            </div>
+            <div id="library-status" class="library-status hidden" role="status" aria-live="polite"></div>
+            <div class="library-section">
+                <div class="library-header">
+                    <h2>Jogos adquiridos</h2>
+                    <span id="library-count" class="library-count"></span>
+                </div>
+                <div id="library-auth" class="library-empty hidden">
+                    Faça login para visualizar sua coleção completa.
+                    <br>
+                    <a href="login.html">Entrar com minha conta</a>
+                </div>
+                <div id="library-empty" class="library-empty hidden">
+                    Nenhum jogo encontrado por aqui ainda. Que tal visitar a <a href="index.html">loja</a> e garantir
+                    o primeiro título?
+                </div>
+                <div id="library-grid" class="library-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy;2025 Strum LTDA. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE = 'http://localhost:8000';
+            const TOKEN_KEY = 'strum_token';
+            const LIBRARY_KEY = 'strum_library';
+
+            let currentUser = null;
+
+            const els = {
+                libraryGrid: document.getElementById('library-grid'),
+                libraryEmpty: document.getElementById('library-empty'),
+                libraryAuth: document.getElementById('library-auth'),
+                libraryCount: document.getElementById('library-count'),
+                status: document.getElementById('library-status'),
+                heroSubtitle: document.getElementById('library-hero-subtitle')
+            };
+
+            function setStatus(message, tone = 'info') {
+                if (!els.status) return;
+                if (!message) {
+                    els.status.classList.add('hidden');
+                    els.status.textContent = '';
+                    return;
+                }
+                els.status.textContent = message;
+                els.status.classList.remove('hidden', 'positive', 'error');
+                if (tone === 'positive') {
+                    els.status.classList.add('positive');
+                } else if (tone === 'error') {
+                    els.status.classList.add('error');
+                }
+            }
+
+            function getToken() {
+                return localStorage.getItem(TOKEN_KEY);
+            }
+
+            function clearToken() {
+                localStorage.removeItem(TOKEN_KEY);
+            }
+
+            function loadLibrarySnapshot() {
+                try {
+                    const raw = localStorage.getItem(LIBRARY_KEY);
+                    if (!raw) return null;
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.games)) {
+                        return parsed.games;
+                    }
+                } catch (err) {
+                    console.warn('Falha ao carregar biblioteca local', err);
+                }
+                return null;
+            }
+
+            function saveLibrarySnapshot(library) {
+                if (!library) return;
+                const games = Array.isArray(library) ? library : (library.games || []);
+                try {
+                    const payload = {
+                        games: games.map(game => ({
+                            id: game.id,
+                            nome: game.nome,
+                            preco: game.preco,
+                            imagem: game.imagem,
+                            promocao: game.promocao || game.promo || false
+                        })),
+                        updatedAt: Date.now()
+                    };
+                    localStorage.setItem(LIBRARY_KEY, JSON.stringify(payload));
+                } catch (err) {
+                    console.warn('Falha ao salvar biblioteca local', err);
+                }
+            }
+
+            function clearLibrarySnapshot() {
+                localStorage.removeItem(LIBRARY_KEY);
+            }
+
+            async function api(path, options = {}) {
+                const opts = { ...options };
+                opts.headers = { ...(options.headers || {}) };
+                if (opts.body && !opts.headers['Content-Type']) {
+                    opts.headers['Content-Type'] = 'application/json';
+                }
+                const token = getToken();
+                if (token) {
+                    opts.headers['Authorization'] = 'Bearer ' + token;
+                }
+                const response = await fetch(API_BASE + path, opts);
+                const text = await response.text();
+                let data = null;
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (err) {
+                        console.warn('Resposta não é JSON válido', err);
+                    }
+                }
+                if (!response.ok) {
+                    const message = data && data.error ? data.error : 'Erro ' + response.status;
+                    throw new Error(message);
+                }
+                return data;
+            }
+
+            function money(value) {
+                return (Number(value) || 0).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+            }
+
+            function createLibraryCard(game) {
+                const card = document.createElement('article');
+                card.className = 'library-card';
+
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'library-card-image';
+                const img = document.createElement('img');
+                img.loading = 'lazy';
+                img.alt = game.nome || 'Jogo';
+                img.src = game.imagem || 'css/Strum Logo Sem Fundo.png';
+                imgWrapper.appendChild(img);
+                card.appendChild(imgWrapper);
+
+                const body = document.createElement('div');
+                body.className = 'library-card-body';
+
+                const titleRow = document.createElement('div');
+                titleRow.className = 'library-card-title-row';
+
+                const title = document.createElement('h3');
+                title.textContent = game.nome || 'Jogo desconhecido';
+                titleRow.appendChild(title);
+
+                if (game.promocao || game.promo) {
+                    const badge = document.createElement('span');
+                    badge.className = 'library-card-badge promo';
+                    badge.textContent = 'Promoção';
+                    titleRow.appendChild(badge);
+                }
+
+                body.appendChild(titleRow);
+
+                const price = document.createElement('p');
+                price.className = 'library-card-price';
+                price.textContent = money(game.preco);
+                body.appendChild(price);
+
+                card.appendChild(body);
+                return card;
+            }
+
+            function renderLibrary(games) {
+                if (els.libraryAuth) {
+                    els.libraryAuth.classList.add('hidden');
+                }
+                if (!els.libraryGrid || !els.libraryEmpty || !els.libraryCount) {
+                    return;
+                }
+                els.libraryGrid.innerHTML = '';
+
+                const list = Array.isArray(games) ? games : [];
+                if (!list.length) {
+                    els.libraryEmpty.classList.remove('hidden');
+                    els.libraryCount.textContent = '0 jogos';
+                    return;
+                }
+                els.libraryEmpty.classList.add('hidden');
+                els.libraryCount.textContent = list.length === 1 ? '1 jogo' : list.length + ' jogos';
+
+                const fragment = document.createDocumentFragment();
+                list.forEach(game => {
+                    fragment.appendChild(createLibraryCard(game));
+                });
+                els.libraryGrid.appendChild(fragment);
+            }
+
+            function renderLoggedOut() {
+                if (els.libraryAuth) {
+                    els.libraryAuth.classList.remove('hidden');
+                }
+                if (els.libraryEmpty) {
+                    els.libraryEmpty.classList.add('hidden');
+                }
+                if (els.libraryGrid) {
+                    els.libraryGrid.innerHTML = '';
+                }
+                if (els.libraryCount) {
+                    els.libraryCount.textContent = '';
+                }
+                setStatus('Faça login para visualizar sua biblioteca.', 'info');
+            }
+
+            function updateHero(user) {
+                if (!els.heroSubtitle) return;
+                if (user && user.email) {
+                    els.heroSubtitle.textContent = `Jogos comprados com a conta ${user.email}.`;
+                } else {
+                    els.heroSubtitle.textContent = 'Acompanhe aqui os jogos que você garantiu na Strum. Sincronizamos automaticamente com sua conta.';
+                }
+            }
+
+            async function loadLibraryFromServer() {
+                setStatus('Sincronizando com o servidor...', 'info');
+                try {
+                    const [userData, libraryData] = await Promise.all([
+                        api('/auth/me', { method: 'GET' }),
+                        api('/users/library', { method: 'GET' })
+                    ]);
+                    currentUser = userData || null;
+                    updateHero(currentUser);
+
+                    const games = Array.isArray(libraryData)
+                        ? libraryData
+                        : (libraryData && Array.isArray(libraryData.games) ? libraryData.games : []);
+                    renderLibrary(games);
+                    saveLibrarySnapshot(games);
+
+                    setStatus(
+                        games.length ? 'Biblioteca atualizada.' : 'Nenhum jogo adicionado ainda.',
+                        games.length ? 'positive' : 'info'
+                    );
+                } catch (err) {
+                    const message = (err && err.message ? err.message : '').toLowerCase();
+                    if (message.includes('nao autorizado')) {
+                        clearToken();
+                        clearLibrarySnapshot();
+                        renderLoggedOut();
+                        setStatus('Sua sessão expirou. Faça login novamente.', 'error');
+                        return;
+                    }
+                    setStatus('Não foi possível atualizar a biblioteca: ' + err.message, 'error');
+                }
+            }
+
+            const token = getToken();
+            if (!token) {
+                renderLoggedOut();
+                return;
+            }
+
+            const snapshot = loadLibrarySnapshot();
+            if (snapshot && snapshot.length) {
+                renderLibrary(snapshot);
+                setStatus('Mostrando sua biblioteca sincronizada anteriormente.', 'positive');
+            }
+
+            loadLibraryFromServer();
+        });
+    </script>
+</body>
+
+</html>

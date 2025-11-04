@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strum - Suporte</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        .support-hero {
+            max-width: 1080px;
+            margin: 80px auto 48px;
+            padding: 36px 48px;
+            border-radius: 18px;
+            background: linear-gradient(120deg, rgba(159, 82, 255, 0.22), rgba(14, 14, 14, 0.95));
+            border: 1px solid rgba(159, 82, 255, 0.35);
+        }
+        .support-hero h1 {
+            font-size: 34px;
+            margin-bottom: 14px;
+            color: #fff;
+        }
+        .support-hero p {
+            color: #cacaca;
+            line-height: 1.6;
+            font-size: 16px;
+            max-width: 680px;
+        }
+        .support-layout {
+            max-width: 1080px;
+            margin: 0 auto 80px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 32px;
+        }
+        .support-sidebar {
+            background: rgba(16, 16, 16, 0.95);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .support-sidebar h2 {
+            font-size: 18px;
+            color: #fff;
+        }
+        .support-sidebar p,
+        .support-sidebar li,
+        .support-sidebar span {
+            color: #b7b7b7;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .support-sidebar ul {
+            padding-left: 18px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .support-sidebar .status-pill {
+            align-self: flex-start;
+            background: rgba(77, 217, 120, 0.16);
+            color: #4dd978;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.6px;
+        }
+        .support-sidebar .info-card {
+            background: #101010;
+            border-radius: 12px;
+            border: 1px solid rgba(159, 82, 255, 0.2);
+            padding: 16px;
+        }
+        .chat-card {
+            position: relative;
+            background: rgba(11, 11, 11, 0.96);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            flex-direction: column;
+            min-height: 540px;
+        }
+        .chat-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-header h2 {
+            font-size: 20px;
+            color: #fff;
+        }
+        .chat-header span {
+            font-size: 13px;
+            color: #4dd978;
+            background: rgba(77, 217, 120, 0.1);
+            padding: 6px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .message {
+            max-width: 68%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+        .message.agent {
+            align-self: flex-start;
+            background: rgba(159, 82, 255, 0.14);
+            border: 1px solid rgba(159, 82, 255, 0.35);
+            color: #dedede;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: #9f52ff;
+            color: #0d0d0d;
+            border-top-right-radius: 4px;
+        }
+        .message.system {
+            align-self: center;
+            background: rgba(255, 255, 255, 0.04);
+            color: #a5a5a5;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 999px;
+        }
+        .chat-quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 28px 16px;
+        }
+        .chat-quick-replies button {
+            background: rgba(159, 82, 255, 0.14);
+            border: 1px solid rgba(159, 82, 255, 0.35);
+            color: #dfd9ff;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chat-quick-replies button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(159, 82, 255, 0.2);
+        }
+        .chat-form {
+            padding: 18px 24px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            gap: 12px;
+        }
+        .chat-form input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 15px;
+        }
+        .chat-form input::placeholder {
+            color: #7e7e7e;
+        }
+        .chat-form button {
+            padding: 12px 24px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #9f52ff, #5d2cff);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chat-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(159, 82, 255, 0.3);
+        }
+        @media (max-width: 980px) {
+            .support-layout {
+                grid-template-columns: 1fr;
+            }
+            .message {
+                max-width: 84%;
+            }
+        }
+        @media (max-width: 640px) {
+            .support-hero {
+                padding: 28px 22px;
+            }
+            .chat-card {
+                min-height: 420px;
+            }
+            .chat-messages {
+                padding: 20px;
+            }
+            .chat-form {
+                flex-direction: column;
+            }
+            .chat-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+            </div>
+        </div>
+
+        <nav class="header-bottom">
+            <a href="index.html">LOJA</a>
+            <a href="comunidade.html">COMUNIDADE</a>
+            <a href="sobre.html">SOBRE</a>
+            <a href="suporte.html" aria-current="page">SUPORTE</a>
+            <a href="biblioteca.html">MINHA BIBLIOTECA</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="support-hero">
+            <h1>Suporte Strum ao vivo</h1>
+            <p>Estamos disponíveis em tempo real para ajudar com compras, problemas de acesso, dúvidas sobre
+                biblioteca e feedback sobre a plataforma. Inicie uma conversa agora ou use os atalhos para agilizar seu
+                atendimento.</p>
+        </section>
+
+        <section class="support-layout">
+            <aside class="support-sidebar">
+                <span class="status-pill">ONLINE • TEMPO MÉDIO &lt; 2 MIN</span>
+                <div>
+                    <h2>Horários de atendimento</h2>
+                    <p>Domingo a domingo das 10h às 22h (horário de Brasília).</p>
+                </div>
+                <div class="info-card">
+                    <h2>Outros canais</h2>
+                    <ul>
+                        <li>E-mail: suporte@strum.gg</li>
+                        <li>Telefone: 0800 689 2000</li>
+                        <li>Discord: hub.strum.gg</li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>Dicas rápidas</h2>
+                    <p>Anexe prints ou códigos de erro no chat para agilizar. Dados pessoais ficam protegidos e são
+                        excluídos após o atendimento.</p>
+                </div>
+            </aside>
+
+            <section class="chat-card" aria-label="Janela de conversa com o suporte">
+                <header class="chat-header">
+                    <h2>Equipe Strum</h2>
+                    <span>ON-LINE AGORA</span>
+                </header>
+                <div class="chat-messages" id="chat-messages" role="log" aria-live="polite"></div>
+                <div class="chat-quick-replies" aria-label="Atalhos de mensagem">
+                    <button type="button" data-template="Estou com problemas para acessar minha conta.">Acesso à conta</button>
+                    <button type="button" data-template="Minha compra não apareceu na biblioteca.">Compra não encontrada</button>
+                    <button type="button" data-template="Quero solicitar reembolso de um jogo.">Solicitar reembolso</button>
+                    <button type="button" data-template="Como participar de testes da comunidade?">Playtests</button>
+                </div>
+                <form class="chat-form" id="chat-form">
+                    <label class="visually-hidden" for="chat-input">Digite sua mensagem</label>
+                    <input id="chat-input" type="text" placeholder="Digite sua mensagem..." autocomplete="off" required>
+                    <button type="submit">Enviar</button>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        &copy;2025 Strum LTDA. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        (function () {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const quickReplies = document.querySelectorAll('.chat-quick-replies button');
+
+            const responseMap = [
+                {
+                    keywords: ['login', 'senha', 'acesso', 'conta'],
+                    message: [
+                        'Vamos ajudar você a recuperar o acesso. Confirme se o e-mail usado é o mesmo da compra.',
+                        'Se precisar resetar a senha, clique em "Esqueci minha senha" na tela de login. O link expira em 15 minutos.'
+                    ].join(' ')
+                },
+                {
+                    keywords: ['compra', 'pedido', 'fatura', 'pagamento'],
+                    message: [
+                        'Aqui é a Aurora, seu suporte Strum. Localize o número do pedido em "Histórico de compras".',
+                        'Se a compra estiver como pendente há mais de 30 minutos, posso acionar nossa equipe de billing para conferir.'
+                    ].join(' ')
+                },
+                {
+                    keywords: ['reembolso', 'cancelar', 'cancelamento'],
+                    message: [
+                        'Podemos iniciar o processo agora mesmo. Só confirme o título e a data aproximada da compra.',
+                        'Lembrando que devolvemos o valor para o mesmo método de pagamento em até 5 dias úteis.'
+                    ].join(' ')
+                },
+                {
+                    keywords: ['bug', 'erro', 'falha', 'problema'],
+                    message: [
+                        'Obrigado por sinalizar. Pode compartilhar o código do erro ou um print?',
+                        'Isso nos ajuda a encaminhar para o time técnico e agilizar a correção.'
+                    ].join(' ')
+                },
+                {
+                    keywords: ['playtest', 'testes', 'beta', 'comunidade'],
+                    message: [
+                        'Temos vagas abertas para playtests esta semana. Vou registrar seu interesse.',
+                        'Você receberá um convite no e-mail cadastrado com instruções e NDA digital.'
+                    ].join(' ')
+                }
+            ];
+
+            function appendMessage(author, text) {
+                const wrapper = document.createElement('div');
+                wrapper.className = `message ${author}`;
+                wrapper.textContent = text;
+                chatMessages.appendChild(wrapper);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function appendSystem(text) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'message system';
+                wrapper.textContent = text;
+                chatMessages.appendChild(wrapper);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function findResponse(text) {
+                const lower = text.toLowerCase();
+                for (const entry of responseMap) {
+                    if (entry.keywords.some(keyword => lower.includes(keyword))) {
+                        return entry.message;
+                    }
+                }
+                return [
+                    'Estou analisando sua mensagem. Pode me contar mais detalhes ou anexar um print?',
+                    'Se for algo urgente relacionado a cobrança, estou pronto para acionar a equipe de plantão.'
+                ].join(' ');
+            }
+
+            function answerUser(text) {
+                appendSystem('Digitando...');
+                setTimeout(() => {
+                    const indicator = chatMessages.querySelector('.message.system:last-child');
+                    if (indicator) {
+                        indicator.remove();
+                    }
+                    appendMessage('agent', findResponse(text));
+                }, 650);
+            }
+
+            chatForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const text = chatInput.value.trim();
+                if (!text) {
+                    return;
+                }
+                appendMessage('user', text);
+                chatInput.value = '';
+                answerUser(text);
+            });
+
+            quickReplies.forEach(button => {
+                button.addEventListener('click', () => {
+                    chatInput.value = button.dataset.template;
+                    chatInput.focus();
+                });
+            });
+
+            appendMessage('agent', 'Olá! Sou parte da equipe de suporte Strum. Como posso ajudar você hoje?');
+            appendSystem('Atendente humano disponível neste canal.');
+        }());
+    </script>
+</body>
+
+</html>

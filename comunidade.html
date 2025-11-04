@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strum - Comunidade</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .page-hero {
+            max-width: 1080px;
+            margin: 80px auto 48px;
+            padding: 48px;
+            background: linear-gradient(120deg, rgba(159, 82, 255, 0.16), rgba(22, 22, 22, 0.9));
+            border: 1px solid rgba(159, 82, 255, 0.25);
+            border-radius: 18px;
+            text-align: center;
+        }
+        .page-hero h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        .page-hero p {
+            color: #cfcfcf;
+            max-width: 720px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .hero-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 28px;
+            border-radius: 999px;
+            border: 1px solid rgba(159, 82, 255, 0.35);
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .hero-actions a.primary {
+            background: linear-gradient(135deg, #9f52ff, #5d2cff);
+            border-color: transparent;
+        }
+        .hero-actions a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(159, 82, 255, 0.25);
+        }
+        .community-metrics {
+            max-width: 1080px;
+            margin: 0 auto 64px;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+        .metric-card {
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .metric-card span {
+            color: #9f52ff;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .metric-card strong {
+            font-size: 28px;
+            color: #fff;
+        }
+        .metric-card p {
+            color: #b5b5b5;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        .community-features {
+            max-width: 1080px;
+            margin: 0 auto 72px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+        }
+        .feature-card {
+            background: linear-gradient(180deg, rgba(32, 32, 32, 0.9), rgba(13, 13, 13, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: transform 0.2s ease, border 0.2s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(159, 82, 255, 0.45);
+        }
+        .feature-card h3 {
+            font-size: 20px;
+            color: #fff;
+        }
+        .feature-card p {
+            color: #bdbdbd;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .feature-card ul {
+            margin: 0;
+            padding-left: 18px;
+            color: #a5a5a5;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .events-section {
+            max-width: 1080px;
+            margin: 0 auto 80px;
+            padding: 40px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(12, 12, 12, 0.85);
+        }
+        .events-section h2 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .event-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            padding: 18px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        .event-date {
+            min-width: 140px;
+            font-weight: 600;
+            color: #9f52ff;
+        }
+        .event-body h3 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .event-body p {
+            color: #b0b0b0;
+            line-height: 1.6;
+            font-size: 14px;
+            max-width: 620px;
+        }
+        .callout {
+            max-width: 900px;
+            margin: 0 auto 96px;
+            text-align: center;
+            padding: 36px 28px;
+            border-radius: 18px;
+            background: linear-gradient(120deg, rgba(159, 82, 255, 0.25), rgba(12, 12, 12, 0.92));
+            border: 1px solid rgba(159, 82, 255, 0.35);
+        }
+        .callout h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .callout p {
+            color: #d0d0d0;
+            margin-bottom: 24px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        @media (max-width: 720px) {
+            .page-hero {
+                padding: 32px 24px;
+            }
+            .page-hero h1 {
+                font-size: 30px;
+            }
+            .community-features {
+                gap: 20px;
+            }
+            .events-section {
+                padding: 28px 22px;
+            }
+            .callout {
+                margin-bottom: 72px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="css/Strum Logo Sem Fundo.png" alt="Logo Strum">
+            </div>
+        </div>
+
+        <nav class="header-bottom">
+            <a href="index.html">LOJA</a>
+            <a href="comunidade.html" aria-current="page">COMUNIDADE</a>
+            <a href="sobre.html">SOBRE</a>
+            <a href="suporte.html">SUPORTE</a>
+            <a href="biblioteca.html">MINHA BIBLIOTECA</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-hero">
+            <h1>Bem-vindo à Comunidade Strum</h1>
+            <p>
+                Conecte-se com jogadores, desenvolvedores e curadores apaixonados pelo ecossistema Strum.
+                Compartilhe descobertas, organize partidas, ajude a testar novidades e acompanhe de perto
+                tudo o que está chegando à nossa plataforma.
+            </p>
+            <div class="hero-actions">
+                <a class="primary" href="#eventos">Ver agenda da comunidade</a>
+                <a href="suporte.html">Fale com o suporte</a>
+            </div>
+        </section>
+
+        <section class="community-metrics" aria-label="Indicadores da comunidade">
+            <div class="metric-card">
+                <span>MEMBROS ATIVOS</span>
+                <strong>12.450</strong>
+                <p>Jogadores participando de eventos, postando guias e ajudando outros membros diariamente.</p>
+            </div>
+            <div class="metric-card">
+                <span>EVENTOS MÊS</span>
+                <strong>38</strong>
+                <p>Torneios, sessões cooperativas, clubes de speedrun e mesas redondas com devs convidados.</p>
+            </div>
+            <div class="metric-card">
+                <span>GUIAS PUBLICADOS</span>
+                <strong>580+</strong>
+                <p>Conteúdo gerado pela comunidade com dicas, builds, colecionáveis e soluções de conquistas.</p>
+            </div>
+        </section>
+
+        <section class="community-features">
+            <article class="feature-card">
+                <h3>Fóruns Temáticos</h3>
+                <p>Participe de canais organizados por gênero, franquia ou objetivo de jogo. Moderadores treinados
+                    mantêm o espaço saudável e acolhedor.</p>
+                <ul>
+                    <li>Fios em destaque com curadoria semanal.</li>
+                    <li>Marcadores para encontrar rapidamente respostas.</li>
+                    <li>Sistema de reputação para quem ajuda mais.</li>
+                </ul>
+            </article>
+            <article class="feature-card">
+                <h3>Playlists Comunitárias</h3>
+                <p>Monte listas de recomendações compartilhando coleções temáticas com a comunidade e receba feedback
+                    da galera sobre o que jogar em seguida.</p>
+                <ul>
+                    <li>Integração com a biblioteca de compras.</li>
+                    <li>Votação de curadoria colaborativa.</li>
+                    <li>Badges especiais para curadores ativos.</li>
+                </ul>
+            </article>
+            <article class="feature-card">
+                <h3>Programas de Mentoria</h3>
+                <p>Facilitamos o encontro entre novatos e veteranos para acelerar o aprendizado de mecânicas e
+                    estratégias. Sessões quinzenais e feedback contínuo.</p>
+                <ul>
+                    <li>Agenda compartilhada para marcar encontros.</li>
+                    <li>Checklist de progressão sugerida por mentores.</li>
+                    <li>Relatórios para acompanhar evolução de cada duo.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="events-section" id="eventos" aria-labelledby="agenda-title">
+            <h2 id="agenda-title">Agenda da Comunidade</h2>
+            <div class="event-item">
+                <div class="event-date">15 MAR • 20H</div>
+                <div class="event-body">
+                    <h3>Noite Coop - Catálogo Indie</h3>
+                    <p>Corujão dedicado aos melhores lançamentos independentes do mês. Jogadores se dividem em squad
+                        para experimentar demos, compartilhar impressões e votar nos favoritos para a vitrine Strum.</p>
+                </div>
+            </div>
+            <div class="event-item">
+                <div class="event-date">23 MAR • 18H</div>
+                <div class="event-body">
+                    <h3>Workshop Dev Talks</h3>
+                    <p>Conversa aberta com estúdios parceiros sobre pipelines de conteúdo adicional e balanceamento de
+                        temporadas. Espaço para Q&amp;A e inscrição em playtests.</p>
+                </div>
+            </div>
+            <div class="event-item">
+                <div class="event-date">06 ABR • 16H</div>
+                <div class="event-body">
+                    <h3>Clínica de Speedrun</h3>
+                    <p>Mentores especializados revisam rotas, exibem truques e apresentam ferramentas de treino. Inclui
+                        canal exclusivo para compartilhar splits e desafios semanais.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="callout">
+            <h2>Quer liderar um novo evento?</h2>
+            <p>Envie sua proposta e receba suporte da equipe Strum para montar estrutura de transmissão, premiações e
+                divulgação. Nossa equipe ajuda com materiais, marketing e contato com parceiros.</p>
+            <div class="hero-actions">
+                <a class="primary" href="mailto:comunidade@strum.gg">Propor evento</a>
+                <a href="suporte.html">Conversar com a equipe</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy;2025 Strum LTDA. Todos os direitos reservados.
+    </footer>
+
+</body>
+
+</html>
