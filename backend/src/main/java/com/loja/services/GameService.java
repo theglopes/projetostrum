@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,15 +45,23 @@ public class GameService {
         return Optional.empty();
     }
 
-    public void adicionarGame(Game g) {
+    public int adicionarGame(Game g) {
         String sql = "INSERT INTO games(name, price, image, promo) VALUES (?, ?, ?, ?)";
         try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, g.getNome());
             ps.setDouble(2, g.getPreco());
             ps.setString(3, g.getImagem());
             ps.setInt(4, g.isPromocao() ? 1 : 0);
             ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    int id = keys.getInt(1);
+                    g.setId(id);
+                    return id;
+                }
+            }
+            return 0;
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao adicionar jogo", e);
         }

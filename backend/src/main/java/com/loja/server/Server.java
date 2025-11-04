@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.loja.db.Database;
 import com.loja.models.Game;
+import com.loja.models.GameSubmission;
 import com.loja.models.DeveloperRequest;
 import com.loja.models.User;
 import com.loja.services.AuthService;
 import com.loja.services.GameService;
+import com.loja.services.GameSubmissionService;
 import com.loja.services.DeveloperRequestService;
 import com.loja.services.OrderService;
 import com.loja.services.OrderService.CheckoutItem;
@@ -22,7 +24,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,7 @@ public class Server {
     private static final OrderService ORDER_SERVICE = new OrderService();
     private static final UserService USER_SERVICE = new UserService();
     private static final DeveloperRequestService DEVELOPER_REQUEST_SERVICE = new DeveloperRequestService();
+    private static final GameSubmissionService GAME_SUBMISSION_SERVICE = new GameSubmissionService();
 
     public static void main(String[] args) throws IOException {
         Database.ensureSeededGames();
@@ -59,8 +64,11 @@ public class Server {
         server.createContext("/admin/overview", withCors(Server::handleAdminOverview));
         server.createContext("/developer/overview", withCors(Server::handleDeveloperOverview));
         server.createContext("/developer/requests", withCors(Server::handleDeveloperRequests));
+        server.createContext("/developer/games", withCors(Server::handleDeveloperGames));
         server.createContext("/admin/developer/requests", withCors(Server::handleAdminDeveloperRequests));
         server.createContext("/admin/developer/requests/status", withCors(Server::handleAdminDeveloperRequestStatus));
+        server.createContext("/admin/game-submissions", withCors(Server::handleAdminGameSubmissions));
+        server.createContext("/admin/game-submissions/status", withCors(Server::handleAdminGameSubmissionStatus));
         server.createContext("/moderator/overview", withCors(Server::handleModeratorOverview));
         server.createContext("/health", withCors(Server::handleHealth));
 
@@ -405,6 +413,32 @@ public class Server {
             return;
         }
 
+        if ("DELETE".equals(method)) {
+            if (!requester.get().isAdmin()) {
+                sendJson(exchange, 403, Map.of("error", "Apenas administradores podem remover jogos"));
+                return;
+            }
+            Map<String, String> params = queryParams(exchange);
+            int gameId = parseInt(params.get("id"));
+            if (gameId <= 0) {
+                JsonObject body = parseBody(exchange, JsonObject.class);
+                if (body != null && body.has("id")) {
+                    gameId = parseInt(body.get("id").getAsString());
+                }
+            }
+            if (gameId <= 0) {
+                sendJson(exchange, 400, Map.of("error", "Identificador do jogo obrigatorio"));
+                return;
+            }
+            boolean removed = GAME_SERVICE.removerGame(gameId);
+            if (!removed) {
+                sendJson(exchange, 404, Map.of("error", "Jogo nao encontrado"));
+                return;
+            }
+            sendJson(exchange, 200, Map.of("message", "Jogo removido com sucesso", "gameId", gameId));
+            return;
+        }
+
         if (!"POST".equals(method)) {
             sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
             return;
@@ -432,8 +466,12 @@ public class Server {
         }
 
         Game created = new Game(0, name, price, "PC", promo, image);
-        GAME_SERVICE.adicionarGame(created);
-        sendJson(exchange, 201, Map.of("message", "Jogo criado com sucesso"));
+        int gameId = GAME_SERVICE.adicionarGame(created);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("message", "Jogo criado com sucesso");
+        payload.put("gameId", gameId);
+        payload.put("game", created);
+        sendJson(exchange, 201, payload);
     }
 
     private static void handleAdminOverview(HttpExchange exchange) throws IOException {
@@ -534,6 +572,53 @@ public class Server {
         sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
     }
 
+    private static void handleDeveloperGames(HttpExchange exchange) throws IOException {
+        Optional<User> requester = authenticateRequest(exchange);
+        if (requester.isEmpty()) {
+            sendJson(exchange, 401, Map.of("error", "Nao autorizado"));
+            return;
+        }
+
+        String method = exchange.getRequestMethod().toUpperCase();
+        if ("GET".equals(method)) {
+            if (!hasAnyRole(requester.get(), "DEVELOPER")) {
+                sendJson(exchange, 403, Map.of("error", "Area exclusiva para desenvolvedores"));
+                return;
+            }
+            List<GameSubmission> submissions = GAME_SUBMISSION_SERVICE.listByUser(requester.get().getId());
+            sendJson(exchange, 200, Map.of("submissions", submissions));
+            return;
+        }
+
+        if ("POST".equals(method)) {
+            if (!hasAnyRole(requester.get(), "DEVELOPER")) {
+                sendJson(exchange, 403, Map.of("error", "Area exclusiva para desenvolvedores"));
+                return;
+            }
+            JsonObject body = parseBody(exchange, JsonObject.class);
+            if (body == null || !body.has("name") || !body.has("price")) {
+                sendJson(exchange, 400, Map.of("error", "Dados do jogo sao obrigatorios"));
+                return;
+            }
+            String name = body.get("name").getAsString();
+            double price = body.get("price").getAsDouble();
+            String image = body.has("image") ? body.get("image").getAsString() : null;
+            boolean promo = body.has("promo") && body.get("promo").getAsBoolean();
+            try {
+                GameSubmission submission = GAME_SUBMISSION_SERVICE.submit(requester.get().getId(), name, price, image, promo);
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Jogo enviado para revisao.");
+                response.put("submission", submission);
+                sendJson(exchange, 201, response);
+            } catch (IllegalArgumentException ex) {
+                sendJson(exchange, 400, Map.of("error", ex.getMessage()));
+            }
+            return;
+        }
+
+        sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
+    }
+
     private static void handleAdminDeveloperRequests(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
@@ -588,6 +673,60 @@ public class Server {
         sendJson(exchange, 200, response);
     }
 
+    private static void handleAdminGameSubmissions(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
+            return;
+        }
+        Optional<User> requester = authenticateRequest(exchange);
+        if (requester.isEmpty()) {
+            sendJson(exchange, 401, Map.of("error", "Nao autorizado"));
+            return;
+        }
+        if (!hasAnyRole(requester.get(), "ADMIN", "MODERATOR")) {
+            sendJson(exchange, 403, Map.of("error", "Acesso restrito"));
+            return;
+        }
+        List<GameSubmission> submissions = GAME_SUBMISSION_SERVICE.listAll();
+        sendJson(exchange, 200, Map.of("submissions", submissions));
+    }
+
+    private static void handleAdminGameSubmissionStatus(HttpExchange exchange) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
+            return;
+        }
+        Optional<User> requester = authenticateRequest(exchange);
+        if (requester.isEmpty()) {
+            sendJson(exchange, 401, Map.of("error", "Nao autorizado"));
+            return;
+        }
+        if (!hasAnyRole(requester.get(), "ADMIN", "MODERATOR")) {
+            sendJson(exchange, 403, Map.of("error", "Acesso restrito"));
+            return;
+        }
+        JsonObject body = parseBody(exchange, JsonObject.class);
+        if (body == null || !body.has("submissionId") || !body.has("status")) {
+            sendJson(exchange, 400, Map.of("error", "Parametros obrigatorios ausentes"));
+            return;
+        }
+        int submissionId = body.get("submissionId").getAsInt();
+        String status = body.get("status").getAsString();
+        try {
+            Optional<GameSubmission> updated = GAME_SUBMISSION_SERVICE.updateStatus(submissionId, status, requester.get().getId());
+            if (updated.isEmpty()) {
+                sendJson(exchange, 404, Map.of("error", "Submissao nao encontrada"));
+                return;
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Submissao atualizada.");
+            response.put("submission", updated.get());
+            sendJson(exchange, 200, response);
+        } catch (IllegalArgumentException ex) {
+            sendJson(exchange, 400, Map.of("error", ex.getMessage()));
+        }
+    }
+
     private static void handleModeratorOverview(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             sendJson(exchange, 405, Map.of("error", "Metodo nao permitido"));
@@ -635,6 +774,46 @@ public class Server {
             return Optional.of(auth.substring("Bearer ".length()).trim());
         }
         return Optional.empty();
+    }
+
+    private static Map<String, String> queryParams(HttpExchange exchange) {
+        String rawQuery = exchange.getRequestURI().getRawQuery();
+        if (rawQuery == null || rawQuery.isBlank()) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> params = new HashMap<>();
+        for (String pair : rawQuery.split("&")) {
+            if (pair == null || pair.isBlank()) {
+                continue;
+            }
+            String[] parts = pair.split("=", 2);
+            String key = urlDecode(parts[0]);
+            String value = parts.length > 1 ? urlDecode(parts[1]) : "";
+            params.put(key, value);
+        }
+        return params;
+    }
+
+    private static String urlDecode(String value) {
+        if (value == null) {
+            return "";
+        }
+        try {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException ex) {
+            return value;
+        }
+    }
+
+    private static int parseInt(String value) {
+        if (value == null) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException ex) {
+            return -1;
+        }
     }
 
     private static <T> T parseBody(HttpExchange exchange, Class<T> clazz) throws IOException {

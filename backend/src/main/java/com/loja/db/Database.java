@@ -121,7 +121,28 @@ public final class Database {
                 )
             """);
 
+            st.execute("""
+                CREATE TABLE IF NOT EXISTS game_submissions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    name TEXT NOT NULL,
+                    price REAL NOT NULL,
+                    image TEXT,
+                    promo INTEGER NOT NULL DEFAULT 0,
+                    status TEXT NOT NULL DEFAULT 'PENDING',
+                    created_at INTEGER NOT NULL,
+                    updated_at INTEGER NOT NULL,
+                    approved_game_id INTEGER,
+                    resolved_by INTEGER,
+                    resolved_at INTEGER,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (resolved_by) REFERENCES users(id) ON DELETE SET NULL,
+                    FOREIGN KEY (approved_game_id) REFERENCES games(id) ON DELETE SET NULL
+                )
+            """);
+
             ensureUsersSchemaUpgrades(conn);
+            ensureGameSubmissionSchemaUpgrades(conn);
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao inicializar banco de dados", e);
         }
@@ -190,6 +211,24 @@ public final class Database {
         if (!hasColumn(conn, "users", "plan")) {
             try (Statement st = conn.createStatement()) {
                 st.execute("ALTER TABLE users ADD COLUMN plan TEXT NOT NULL DEFAULT 'FREE'");
+            }
+        }
+    }
+
+    private static void ensureGameSubmissionSchemaUpgrades(Connection conn) throws SQLException {
+        if (!hasColumn(conn, "game_submissions", "approved_game_id")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("ALTER TABLE game_submissions ADD COLUMN approved_game_id INTEGER");
+            }
+        }
+        if (!hasColumn(conn, "game_submissions", "resolved_by")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("ALTER TABLE game_submissions ADD COLUMN resolved_by INTEGER");
+            }
+        }
+        if (!hasColumn(conn, "game_submissions", "resolved_at")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("ALTER TABLE game_submissions ADD COLUMN resolved_at INTEGER");
             }
         }
     }

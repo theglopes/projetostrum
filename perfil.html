@@ -217,6 +217,34 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        .developer-submissions {
+            margin-top: 18px;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 10px;
+        }
+        .developer-submissions li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: #121212;
+            border: 1px solid #242424;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+        .developer-submissions li .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .developer-submissions-empty {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #9c9c9c;
+        }
         .badge {
             display: inline-block;
             padding: 2px 8px;
@@ -247,6 +275,33 @@
         .badge.admin {
             border-color: #ff9f52;
             color: #ff9f52;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-badge.pending {
+            border-color: #ff9f52;
+            color: #ff9f52;
+        }
+        .status-badge.approved {
+            border-color: #7dff80;
+            color: #7dff80;
+        }
+        .status-badge.rejected {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        .moderator-game-submissions {
+            margin-top: 18px;
         }
     </style>
 </head>
@@ -373,6 +428,11 @@
                             <button type="submit">Enviar para aprovação</button>
                         </form>
                         <p id="developer-game-feedback" class="form-feedback"></p>
+                        <div id="developer-game-submissions-container" class="developer-submissions-container">
+                            <h4>Envios recentes</h4>
+                            <p id="developer-game-submissions-empty" class="developer-submissions-empty hidden">Voce ainda nao enviou jogos para analise.</p>
+                            <ul id="developer-game-submissions" class="developer-submissions"></ul>
+                        </div>
                     </div>
                 </section>
 
@@ -381,6 +441,25 @@
                     <small>Receba tarefas da comunidade e mantenha o ambiente saudável.</small>
                     <div id="moderator-summary" class="role-card-content"></div>
                     <ul id="moderator-tasks" class="role-card-list"></ul>
+                    <div id="moderator-game-submissions" class="moderator-game-submissions hidden">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px;">
+                            <h3>Submissoes de jogos aguardando aprovacao</h3>
+                            <button type="button" class="btn-secondary" id="moderator-reload-game-submissions">Atualizar</button>
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Jogo</th>
+                                    <th>Desenvolvedor</th>
+                                    <th>Status</th>
+                                    <th>Enviado em</th>
+                                    <th>Acoes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="moderator-game-submissions-body"></tbody>
+                        </table>
+                        <p id="moderator-game-submissions-empty" class="admin-users-empty hidden">Nenhuma submissao pendente.</p>
+                    </div>
                 </section>
 
                 <section class="role-card hidden" id="admin-section">
@@ -457,6 +536,26 @@
                                 <tbody id="admin-dev-requests-body"></tbody>
                             </table>
                             <p id="admin-dev-requests-empty" class="admin-users-empty hidden">Nenhuma solicitacao pendente.</p>
+                        </div>
+
+                        <div class="admin-game-submissions">
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:24px;">
+                                <h3>Submissoes de jogos</h3>
+                                <button type="button" class="btn-secondary" id="admin-reload-game-submissions">Atualizar</button>
+                            </div>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Jogo</th>
+                                        <th>Desenvolvedor</th>
+                                        <th>Status</th>
+                                        <th>Enviado em</th>
+                                        <th>Acoes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-game-submissions-body"></tbody>
+                            </table>
+                            <p id="admin-game-submissions-empty" class="admin-users-empty hidden">Nenhuma submissao pendente.</p>
                         </div>
                     </div>
                 </section>
@@ -541,7 +640,17 @@
                 adminGameFeedback: document.getElementById('admin-game-feedback'),
                 adminDevRequestsBody: document.getElementById('admin-dev-requests-body'),
                 adminDevRequestsEmpty: document.getElementById('admin-dev-requests-empty'),
-                adminReloadDevRequests: document.getElementById('admin-reload-dev-requests')
+                adminReloadDevRequests: document.getElementById('admin-reload-dev-requests'),
+                adminGameSubmissionsBody: document.getElementById('admin-game-submissions-body'),
+                adminGameSubmissionsEmpty: document.getElementById('admin-game-submissions-empty'),
+                adminReloadGameSubmissions: document.getElementById('admin-reload-game-submissions'),
+                moderatorGameSubmissions: document.getElementById('moderator-game-submissions'),
+                moderatorGameSubmissionsBody: document.getElementById('moderator-game-submissions-body'),
+                moderatorGameSubmissionsEmpty: document.getElementById('moderator-game-submissions-empty'),
+                moderatorReloadGameSubmissions: document.getElementById('moderator-reload-game-submissions'),
+                developerGameSubmissions: document.getElementById('developer-game-submissions'),
+                developerGameSubmissionsEmpty: document.getElementById('developer-game-submissions-empty'),
+                developerGameSubmissionsContainer: document.getElementById('developer-game-submissions-container')
             };
 
             const MONTHS = [
@@ -559,6 +668,12 @@
             const PLAN_LABELS = {
                 PREMIUM: 'Strum+ Premium',
                 FREE: 'Gratuito'
+            };
+
+            const SUBMISSION_STATUS_LABELS = {
+                PENDING: 'Pendente',
+                APPROVED: 'Aprovado',
+                REJECTED: 'Rejeitado'
             };
 
             const IMAGE_ERROR_INVALID = 'Selecione um arquivo de imagem valido.';
@@ -818,10 +933,17 @@
                 }
                 const isDeveloper = hasRole('DEVELOPER');
                 const isAdmin = hasRole('ADMIN');
-                if (isDeveloper || isAdmin) {
+                if (isDeveloper) {
                     els.developerRequestSection.classList.add('hidden');
                     if (els.developerGameContainer) {
                         els.developerGameContainer.classList.remove('hidden');
+                    }
+                    return;
+                }
+                if (isAdmin) {
+                    els.developerRequestSection.classList.add('hidden');
+                    if (els.developerGameContainer) {
+                        els.developerGameContainer.classList.add('hidden');
                     }
                     return;
                 }
@@ -931,6 +1053,70 @@
                 } finally {
                     if (submitBtn) {
                         submitBtn.disabled = false;
+                    }
+                }
+            }
+
+            function renderDeveloperSubmissions(submissions) {
+                if (!els.developerGameSubmissions || !els.developerGameSubmissionsEmpty || !els.developerGameSubmissionsContainer) {
+                    return;
+                }
+                const list = Array.isArray(submissions) ? submissions : [];
+                els.developerGameSubmissions.innerHTML = '';
+                if (!list.length) {
+                    els.developerGameSubmissionsEmpty.classList.remove('hidden');
+                    return;
+                }
+                els.developerGameSubmissionsEmpty.classList.add('hidden');
+                const fragment = document.createDocumentFragment();
+                list.forEach(submission => {
+                    const li = document.createElement('li');
+                    const meta = document.createElement('div');
+                    meta.className = 'meta';
+                    const title = document.createElement('strong');
+                    title.textContent = submission.nome || 'Jogo';
+                    const date = document.createElement('span');
+                    date.className = 'text-muted';
+                    date.textContent = `Enviado em ${unixToDateText(submission.createdAt)}`;
+                    meta.appendChild(title);
+                    meta.appendChild(date);
+                    li.appendChild(meta);
+                    const statusValue = (submission.status || 'PENDING').toUpperCase();
+                    const statusLabel = SUBMISSION_STATUS_LABELS[statusValue] || statusValue;
+                    const badge = document.createElement('span');
+                    badge.className = `status-badge ${
+                        statusValue === 'APPROVED'
+                            ? 'approved'
+                            : statusValue === 'REJECTED'
+                                ? 'rejected'
+                                : 'pending'
+                    }`;
+                    badge.textContent = statusLabel;
+                    li.appendChild(badge);
+                    fragment.appendChild(li);
+                });
+                els.developerGameSubmissions.appendChild(fragment);
+            }
+
+            async function loadDeveloperSubmissions(force = false) {
+                if (!els.developerGameSubmissions) {
+                    return;
+                }
+                if (developerSubmissionsLoaded && !force) {
+                    renderDeveloperSubmissions(developerSubmissions);
+                    return;
+                }
+                try {
+                    const data = await api('/developer/games', { method: 'GET' });
+                    developerSubmissions = data && Array.isArray(data.submissions) ? data.submissions : [];
+                    developerSubmissionsLoaded = true;
+                    renderDeveloperSubmissions(developerSubmissions);
+                } catch (err) {
+                    developerSubmissionsLoaded = false;
+                    developerSubmissions = [];
+                    if (els.developerGameSubmissionsEmpty) {
+                        els.developerGameSubmissionsEmpty.classList.remove('hidden');
+                        els.developerGameSubmissionsEmpty.textContent = err.message || 'Nao foi possivel carregar seus envios.';
                     }
                 }
             }
@@ -1046,9 +1232,6 @@
                     return false;
                 }
                 const currentRole = (currentUser.role || 'USER').toUpperCase();
-                if (currentRole === 'ADMIN') {
-                    return true;
-                }
                 return currentRole === role.toUpperCase();
             }
 
@@ -1125,35 +1308,48 @@
             let adminLoaded = false;
             let developerRequestLoaded = false;
             let developerRequestData = null;
+            let developerSubmissionsLoaded = false;
+            let developerSubmissions = [];
+            let gameSubmissionsLoaded = false;
+            let gameSubmissions = [];
 
             function updateRoleSections() {
                 const isAdmin = hasRole('ADMIN');
                 const isDeveloper = hasRole('DEVELOPER');
-                if ((isDeveloper || isAdmin) && els.developerSection) {
-                    loadDeveloperOverview();
-                    if (els.developerRequestSection) {
-                        els.developerRequestSection.classList.add('hidden');
-                    }
-                    if (els.developerGameContainer) {
-                        els.developerGameContainer.classList.remove('hidden');
-                    }
-                } else {
-                    if (els.developerSection) {
+                if (els.developerSection) {
+                    if (isDeveloper) {
+                        loadDeveloperOverview();
+                        if (els.developerGameContainer) {
+                            els.developerGameContainer.classList.remove('hidden');
+                        }
+                        if (els.developerRequestSection) {
+                            els.developerRequestSection.classList.add('hidden');
+                        }
+                    } else {
                         els.developerSection.classList.add('hidden');
-                    }
-                    if (els.developerRequestSection) {
-                        loadDeveloperRequest();
+                        if (els.developerGameContainer) {
+                            els.developerGameContainer.classList.add('hidden');
+                        }
+                        if (els.developerRequestSection) {
+                            if (isAdmin) {
+                                els.developerRequestSection.classList.add('hidden');
+                            } else {
+                                loadDeveloperRequest();
+                            }
+                        }
                     }
                 }
 
                 if ((hasRole('MODERATOR') || isAdmin) && els.moderatorSection) {
                     loadModeratorOverview();
+                    loadGameSubmissions();
                 } else if (els.moderatorSection) {
                     els.moderatorSection.classList.add('hidden');
                 }
 
                 if (isAdmin && els.adminSection) {
                     loadAdminData();
+                    loadGameSubmissions();
                 } else if (els.adminSection) {
                     els.adminSection.classList.add('hidden');
                 }
@@ -1189,18 +1385,20 @@
                 els.developerSection.classList.remove('hidden');
             }
 
-            async function loadDeveloperOverview() {
+            async function loadDeveloperOverview(force = false) {
                 if (!els.developerSection) {
                     return;
                 }
-                if (developerLoaded) {
+                if (developerLoaded && !force) {
                     els.developerSection.classList.remove('hidden');
+                    renderDeveloperSubmissions(developerSubmissions);
                     return;
                 }
                 try {
                     const data = await api('/developer/overview', { method: 'GET' });
                     renderDeveloperOverview(data);
                     developerLoaded = true;
+                    await loadDeveloperSubmissions(force);
                 } catch (err) {
                     console.warn('Falha ao carregar painel do desenvolvedor', err);
                     els.developerSection.classList.add('hidden');
@@ -1463,6 +1661,158 @@
                 }
             }
 
+            function renderGameSubmissionsTable(submissions, bodyEl, emptyEl) {
+                if (!bodyEl) {
+                    return;
+                }
+                bodyEl.innerHTML = '';
+                const list = Array.isArray(submissions) ? submissions : [];
+                if (!list.length) {
+                    if (emptyEl) {
+                        emptyEl.classList.remove('hidden');
+                        emptyEl.textContent = 'Nenhuma submissao pendente.';
+                    }
+                    return;
+                }
+                if (emptyEl) {
+                    emptyEl.classList.add('hidden');
+                }
+                const fragment = document.createDocumentFragment();
+                list.forEach(submission => {
+                    const tr = document.createElement('tr');
+
+                    const gameTd = document.createElement('td');
+                    gameTd.textContent = submission.nome || '-';
+                    tr.appendChild(gameTd);
+
+                    const devTd = document.createElement('td');
+                    devTd.textContent = submission.userEmail || '-';
+                    tr.appendChild(devTd);
+
+                    const statusTd = document.createElement('td');
+                    const statusValue = (submission.status || 'PENDING').toUpperCase();
+                    const statusLabel = SUBMISSION_STATUS_LABELS[statusValue] || statusValue;
+                    const badge = document.createElement('span');
+                    badge.className = `status-badge ${
+                        statusValue === 'APPROVED'
+                            ? 'approved'
+                            : statusValue === 'REJECTED'
+                                ? 'rejected'
+                                : 'pending'
+                    }`;
+                    badge.textContent = statusLabel;
+                    statusTd.appendChild(badge);
+                    tr.appendChild(statusTd);
+
+                    const createdTd = document.createElement('td');
+                    createdTd.textContent = unixToDateText(submission.createdAt);
+                    tr.appendChild(createdTd);
+
+                    const actionsTd = document.createElement('td');
+                    if (statusValue === 'PENDING') {
+                        const approveBtn = document.createElement('button');
+                        approveBtn.type = 'button';
+                        approveBtn.className = 'btn btn-primary';
+                        approveBtn.textContent = 'Aprovar';
+                        approveBtn.dataset.gameSubmissionAction = 'APPROVED';
+                        approveBtn.dataset.submissionId = String(submission.id);
+                        actionsTd.appendChild(approveBtn);
+
+                        const rejectBtn = document.createElement('button');
+                        rejectBtn.type = 'button';
+                        rejectBtn.className = 'btn-secondary';
+                        rejectBtn.style.marginLeft = '8px';
+                        rejectBtn.textContent = 'Rejeitar';
+                        rejectBtn.dataset.gameSubmissionAction = 'REJECTED';
+                        rejectBtn.dataset.submissionId = String(submission.id);
+                        actionsTd.appendChild(rejectBtn);
+                    } else {
+                        const resolvedInfo = document.createElement('span');
+                        resolvedInfo.className = 'text-muted';
+                        const resolvedBy = submission.resolvedByEmail || '-';
+                        resolvedInfo.textContent = resolvedBy === '-' ? 'Resolvido' : `Resolvido por ${resolvedBy}`;
+                        actionsTd.appendChild(resolvedInfo);
+                    }
+                    tr.appendChild(actionsTd);
+                    fragment.appendChild(tr);
+                });
+                bodyEl.appendChild(fragment);
+            }
+
+            function renderGameSubmissions(submissions) {
+                if (els.adminGameSubmissionsBody) {
+                    renderGameSubmissionsTable(submissions, els.adminGameSubmissionsBody, els.adminGameSubmissionsEmpty);
+                }
+                if (els.moderatorGameSubmissionsBody) {
+                    renderGameSubmissionsTable(submissions, els.moderatorGameSubmissionsBody, els.moderatorGameSubmissionsEmpty);
+                    if (hasRole('MODERATOR') && els.moderatorGameSubmissions) {
+                        els.moderatorGameSubmissions.classList.remove('hidden');
+                    }
+                }
+            }
+
+            async function loadGameSubmissions(force = false) {
+                if (!els.adminGameSubmissionsBody && !els.moderatorGameSubmissionsBody) {
+                    return;
+                }
+                if (gameSubmissionsLoaded && !force) {
+                    renderGameSubmissions(gameSubmissions);
+                    return;
+                }
+                try {
+                    const data = await api('/admin/game-submissions', { method: 'GET' });
+                    gameSubmissions = data && Array.isArray(data.submissions) ? data.submissions : [];
+                    gameSubmissionsLoaded = true;
+                    renderGameSubmissions(gameSubmissions);
+                } catch (err) {
+                    gameSubmissionsLoaded = false;
+                    gameSubmissions = [];
+                    if (els.adminGameSubmissionsEmpty) {
+                        els.adminGameSubmissionsEmpty.classList.remove('hidden');
+                        els.adminGameSubmissionsEmpty.textContent = err.message || 'Nao foi possivel carregar as submissoes.';
+                    }
+                    if (els.moderatorGameSubmissionsEmpty) {
+                        els.moderatorGameSubmissionsEmpty.classList.remove('hidden');
+                        els.moderatorGameSubmissionsEmpty.textContent = err.message || 'Nao foi possivel carregar as submissoes.';
+                    }
+                }
+            }
+
+            async function updateGameSubmissionStatus(submissionId, status) {
+                if (!submissionId || !status) {
+                    return;
+                }
+                try {
+                    const result = await api('/admin/game-submissions/status', {
+                        method: 'POST',
+                        body: JSON.stringify({ submissionId, status })
+                    });
+                    const message = result && result.message ? result.message : 'Submissao atualizada.';
+                    setStatus(message, true);
+                    gameSubmissionsLoaded = false;
+                    await loadGameSubmissions(true);
+                    adminLoaded = false;
+                    developerLoaded = false;
+                    await loadAdminData();
+                } catch (err) {
+                    setStatus(err.message || 'Nao foi possivel atualizar a submissao.');
+                }
+            }
+
+            function handleGameSubmissionAction(event) {
+                const target = event.target;
+                if (!target || !target.dataset || !target.dataset.gameSubmissionAction) {
+                    return;
+                }
+                const submissionId = Number(target.dataset.submissionId);
+                const action = target.dataset.gameSubmissionAction.toUpperCase();
+                if (!submissionId || !action) {
+                    return;
+                }
+                event.preventDefault();
+                updateGameSubmissionStatus(submissionId, action);
+            }
+
             async function loadAdminUsers() {
                 try {
                     const data = await api('/admin/users', { method: 'GET' });
@@ -1495,7 +1845,8 @@
                 els.adminSection.classList.remove('hidden');
                 await Promise.all([
                     loadAdminUsers(),
-                    loadAdminDeveloperRequests()
+                    loadAdminDeveloperRequests(),
+                    loadGameSubmissions()
                 ]);
             }
 
@@ -1620,15 +1971,15 @@
                             name,
                             price: priceValue,
                             image: imageData,
-                            promo,
-                            status: 'PENDING'
+                            promo
                         })
                     });
                     els.developerGameForm.reset();
                     resetImageInput(els.developerGameImage, els.developerGamePreview, els.developerGamePreviewImage);
                     setDeveloperGameFeedback('Jogo enviado! Aguarde a aprovacao.', false);
                     developerLoaded = false;
-                    loadDeveloperOverview();
+                    developerSubmissionsLoaded = false;
+                    await loadDeveloperOverview(true);
                 } catch (err) {
                     setDeveloperGameFeedback(err.message || 'Nao foi possivel enviar o jogo.', true);
                 } finally {
@@ -1828,6 +2179,26 @@
             if (els.adminReloadDevRequests) {
                 els.adminReloadDevRequests.addEventListener('click', () => {
                     loadAdminDeveloperRequests();
+                });
+            }
+
+            if (els.adminGameSubmissionsBody) {
+                els.adminGameSubmissionsBody.addEventListener('click', handleGameSubmissionAction);
+            }
+
+            if (els.moderatorGameSubmissionsBody) {
+                els.moderatorGameSubmissionsBody.addEventListener('click', handleGameSubmissionAction);
+            }
+
+            if (els.adminReloadGameSubmissions) {
+                els.adminReloadGameSubmissions.addEventListener('click', () => {
+                    loadGameSubmissions(true);
+                });
+            }
+
+            if (els.moderatorReloadGameSubmissions) {
+                els.moderatorReloadGameSubmissions.addEventListener('click', () => {
+                    loadGameSubmissions(true);
                 });
             }
 
