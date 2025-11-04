@@ -14,7 +14,7 @@ The goal is to deliver a **digital game sales platform** that provides **easy ac
 
 - User account creation with secure authentication (email and password).  
 
-- Support for local payment methods (Pix, bank slip, credit cards).  
+- Support for fictitious local payment methods. (only credit cards at the moment).  
 
 - Immediate download of games after payment confirmation.  
 
