@@ -137,7 +137,7 @@ header {
     display: none;
 }
 
-#nav-user-email {
+#nav-user-gamertag {
     font-size: 12px;
     color: #ccc;
 }
@@ -1055,9 +1055,19 @@ footer {
     .profile-card {
         padding: 24px;
     }
-
     .library-grid {
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
 }
+
+.admin-user-gamertag {
+    font-weight: 600;
+}
+
+.admin-user-email {
+    display: block;
+    font-size: 0.85rem;
+    color: #8e8ea0;
+}
+
 

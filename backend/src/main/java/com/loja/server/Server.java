@@ -122,13 +122,18 @@ public class Server {
         }
         String email = body.has("email") ? body.get("email").getAsString() : null;
         String password = body.has("password") ? body.get("password").getAsString() : null;
+        String gamertag = body.has("gamertag") ? body.get("gamertag").getAsString() : null;
 
-        Optional<User> created = AUTH_SERVICE.register(email, password);
-        if (created.isEmpty()) {
-            sendJson(exchange, 400, Map.of("error", "Nao foi possivel registrar. Verifique credenciais."));
-            return;
+        try {
+            Optional<User> created = AUTH_SERVICE.register(email, password, gamertag);
+            if (created.isEmpty()) {
+                sendJson(exchange, 400, Map.of("error", "Nao foi possivel registrar. Verifique credenciais."));
+                return;
+            }
+            sendJson(exchange, 201, Map.of("message", "Cadastro realizado com sucesso"));
+        } catch (IllegalArgumentException e) {
+            sendJson(exchange, 400, Map.of("error", e.getMessage()));
         }
-        sendJson(exchange, 201, Map.of("message", "Cadastro realizado com sucesso"));
     }
 
     private static void handleLogin(HttpExchange exchange) throws IOException {
@@ -152,8 +157,10 @@ public class Server {
 
         String token = AUTH_SERVICE.createSession(user.get().getId());
         sendJson(exchange, 200, Map.of(
+            "id", user.get().getId(),
             "token", token,
             "email", user.get().getEmail(),
+            "gamertag", user.get().getGamertag(),
             "role", user.get().getRole(),
             "plan", user.get().getPlan()
         ));
@@ -166,7 +173,9 @@ public class Server {
             return;
         }
         sendJson(exchange, 200, Map.of(
+            "id", user.get().getId(),
             "email", user.get().getEmail(),
+            "gamertag", user.get().getGamertag(),
             "createdAt", user.get().getCreatedAt(),
             "role", user.get().getRole(),
             "plan", user.get().getPlan(),
@@ -858,6 +867,7 @@ public class Server {
         return Map.of(
             "id", user.getId(),
             "email", user.getEmail(),
+            "gamertag", user.getGamertag(),
             "role", user.getRole(),
             "plan", user.getPlan(),
             "createdAt", user.getCreatedAt(),

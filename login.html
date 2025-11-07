@@ -149,6 +149,9 @@
                         <label for="register-email">E-mail</label>
                         <input type="email" id="register-email" name="email" required placeholder="novo@strum.com">
 
+                        <label for="register-gamertag">Gamertag</label>
+                        <input type="text" id="register-gamertag" name="gamertag" required minlength="3" maxlength="20" pattern="[A-Za-z0-9._-]{3,20}" placeholder="strum_player">
+
                         <label for="register-password">Senha</label>
                         <input type="password" id="register-password" name="password" required minlength="4" placeholder="minimo 4 caracteres">
 
@@ -174,6 +177,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const API_BASE = 'http://localhost:8000';
             const TOKEN_KEY = 'strum_token';
+            const GAMERTAG_REGEX = /^[A-Za-z0-9._-]{3,20}$/;
 
             const els = {
                 loginForm: document.getElementById('login-form'),
@@ -183,6 +187,7 @@
                 loginSubmit: document.getElementById('login-submit'),
                 registerForm: document.getElementById('register-form'),
                 registerEmail: document.getElementById('register-email'),
+                registerGamertag: document.getElementById('register-gamertag'),
                 registerPassword: document.getElementById('register-password'),
                 registerFeedback: document.getElementById('register-feedback'),
                 registerSubmit: document.getElementById('register-submit')
@@ -280,9 +285,14 @@
                 els.registerForm.addEventListener('submit', async (event) => {
                     event.preventDefault();
                     const email = els.registerEmail.value.trim();
+                    const gamertag = els.registerGamertag.value.trim();
                     const password = els.registerPassword.value;
                     if (!email || !password || password.length < 4) {
                         setFeedback(els.registerFeedback, 'Informe um e-mail valido e senha com pelo menos 4 caracteres.');
+                        return;
+                    }
+                    if (!isValidGamertag(gamertag)) {
+                        setFeedback(els.registerFeedback, 'A gamertag deve ter de 3 a 20 caracteres e pode conter letras, numeros, ".", "-" ou "_".');
                         return;
                     }
                     setFeedback(els.registerFeedback, 'Criando conta...');
@@ -290,9 +300,9 @@
                     try {
                         await api('/auth/register', {
                             method: 'POST',
-                            body: JSON.stringify({ email, password })
+                            body: JSON.stringify({ email, password, gamertag })
                         });
-                        setFeedback(els.registerFeedback, 'Conta criada com sucesso! Use o formulário ao lado para entrar.', true);
+                        setFeedback(els.registerFeedback, 'Conta criada com sucesso! Use o formulario ao lado para entrar.', true);
                         els.registerForm.reset();
                         els.loginEmail.value = email;
                         els.loginPassword.focus();
@@ -309,3 +319,6 @@
     </script>
 </body>
 </html>
+            function isValidGamertag(value) {
+                return Boolean(value) && GAMERTAG_REGEX.test(value.trim());
+            }

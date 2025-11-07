@@ -316,8 +316,9 @@
 
             function updateHero(user) {
                 if (!els.heroSubtitle) return;
-                if (user && user.email) {
-                    els.heroSubtitle.textContent = `Jogos comprados com a conta ${user.email}.`;
+                const displayName = user ? (user.gamertag || user.email) : '';
+                if (displayName) {
+                    els.heroSubtitle.textContent = `Jogos comprados com a conta ${displayName}.`;
                 } else {
                     els.heroSubtitle.textContent = 'Acompanhe aqui os jogos que você garantiu na Strum. Sincronizamos automaticamente com sua conta.';
                 }

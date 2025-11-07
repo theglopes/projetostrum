@@ -5,10 +5,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Simplified SQLite helper to provision the demo database.
@@ -56,6 +62,7 @@ public final class Database {
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     email TEXT NOT NULL UNIQUE,
+                    gamertag TEXT NOT NULL UNIQUE COLLATE NOCASE,
                     password_hash TEXT NOT NULL,
                     role TEXT NOT NULL DEFAULT 'USER',
                     plan TEXT NOT NULL DEFAULT 'FREE',
@@ -213,6 +220,13 @@ public final class Database {
                 st.execute("ALTER TABLE users ADD COLUMN plan TEXT NOT NULL DEFAULT 'FREE'");
             }
         }
+        if (!hasColumn(conn, "users", "gamertag")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("ALTER TABLE users ADD COLUMN gamertag TEXT");
+            }
+        }
+        backfillMissingGamertags(conn);
+        ensureGamertagIndex(conn);
     }
 
     private static void ensureGameSubmissionSchemaUpgrades(Connection conn) throws SQLException {
@@ -230,6 +244,91 @@ public final class Database {
             try (Statement st = conn.createStatement()) {
                 st.execute("ALTER TABLE game_submissions ADD COLUMN resolved_at INTEGER");
             }
+        }
+    }
+
+    private static void backfillMissingGamertags(Connection conn) throws SQLException {
+        List<UserGamertagSeed> pending = new ArrayList<>();
+        Set<String> taken = new HashSet<>();
+        String sql = "SELECT id, email, gamertag FROM users ORDER BY id";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String current = rs.getString("gamertag");
+                if (current != null && !current.isBlank()) {
+                    taken.add(current.trim().toLowerCase(Locale.ROOT));
+                    continue;
+                }
+                pending.add(new UserGamertagSeed(rs.getInt("id"), rs.getString("email")));
+            }
+        }
+        if (pending.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement update = conn.prepareStatement("UPDATE users SET gamertag = ? WHERE id = ?")) {
+            for (UserGamertagSeed seed : pending) {
+                String generated = generateGamertagFromEmail(seed.email, taken);
+                update.setString(1, generated);
+                update.setInt(2, seed.id);
+                update.addBatch();
+            }
+            update.executeBatch();
+        }
+    }
+
+    private static void ensureGamertagIndex(Connection conn) throws SQLException {
+        try (Statement st = conn.createStatement()) {
+            st.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_users_gamertag
+                ON users(gamertag COLLATE NOCASE)
+                WHERE gamertag IS NOT NULL AND TRIM(gamertag) <> ''
+            """);
+        }
+    }
+
+    private static String generateGamertagFromEmail(String email, Set<String> taken) {
+        String base = sanitizeEmailForGamertag(email);
+        String candidate = base;
+        int suffix = 1;
+        String lowered = candidate.toLowerCase(Locale.ROOT);
+        while (taken.contains(lowered)) {
+            suffix++;
+            String suffixStr = String.valueOf(suffix);
+            int maxBaseLength = Math.max(1, 20 - suffixStr.length());
+            String trimmedBase = base.length() > maxBaseLength ? base.substring(0, maxBaseLength) : base;
+            candidate = trimmedBase + suffixStr;
+            lowered = candidate.toLowerCase(Locale.ROOT);
+        }
+        taken.add(lowered);
+        return candidate;
+    }
+
+    private static String sanitizeEmailForGamertag(String email) {
+        if (email == null) {
+            return "player";
+        }
+        String normalized = email.trim().toLowerCase(Locale.ROOT);
+        normalized = normalized.replace(".com.br", "");
+        normalized = normalized.replace(".com", "");
+        normalized = normalized.replace("@", "");
+        normalized = normalized.replace(" ", "");
+        normalized = normalized.replaceAll("[^a-z0-9._-]", "");
+        if (normalized.isBlank()) {
+            return "player";
+        }
+        if (normalized.length() > 20) {
+            return normalized.substring(0, 20);
+        }
+        return normalized;
+    }
+
+    private static final class UserGamertagSeed {
+        private final int id;
+        private final String email;
+
+        private UserGamertagSeed(int id, String email) {
+            this.id = id;
+            this.email = email;
         }
     }
 

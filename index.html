@@ -156,7 +156,7 @@
                 </button>
                 <button type="button" class="nav-action icon-login" id="btn-login" aria-haspopup="dialog">Login</button>
                 <div class="nav-user hidden" id="nav-user" aria-live="polite">
-                    <span id="nav-user-email"></span>
+                    <span id="nav-user-gamertag"></span>
                     <a href="perfil.html" class="nav-action nav-profile" id="btn-profile">Perfil</a>
                     <button type="button" class="nav-action nav-logout" id="btn-logout">Sair</button>
                 </div>
@@ -273,6 +273,8 @@
             <form class="auth-form hidden" id="register-form">
                 <label for="register-email">E-mail</label>
                 <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" required>
+                <label for="register-gamertag">Gamertag</label>
+                <input type="text" id="register-gamertag" name="gamertag" minlength="3" maxlength="20" pattern="[A-Za-z0-9._-]{3,20}" placeholder="strum_player" required>
                 <label for="register-password">Senha</label>
                 <input type="password" id="register-password" name="password" placeholder="Crie uma senha" minlength="4" required>
                 <button type="submit" class="auth-submit">Criar conta</button>
@@ -358,6 +360,7 @@
             const CART_KEY = 'cart';
             const TOKEN_KEY = 'strum_token';
             const LIBRARY_KEY = 'strum_library';
+            const GAMERTAG_REGEX = /^[A-Za-z0-9._-]{3,20}$/;
 
             let backendGames = [];
             const gameIndex = new Map();
@@ -378,12 +381,13 @@
                 logoutBtn: document.getElementById('btn-logout'),
                 profileLink: document.getElementById('btn-profile'),
                 navUser: document.getElementById('nav-user'),
-                navUserEmail: document.getElementById('nav-user-email'),
+                navUserGamertag: document.getElementById('nav-user-gamertag'),
                 authOverlay: document.getElementById('auth-overlay'),
                 authClose: document.getElementById('auth-close'),
                 authTabs: document.querySelectorAll('.auth-tab'),
                 loginForm: document.getElementById('login-form'),
                 registerForm: document.getElementById('register-form'),
+                registerGamertag: document.getElementById('register-gamertag'),
                 authFeedback: document.getElementById('auth-feedback'),
                 authTitle: document.getElementById('auth-title'),
                 toast: document.getElementById('toast'),
@@ -1110,10 +1114,11 @@
             }
 
             function updateAuthUI() {
-                if (!els.navUser || !els.navUserEmail) return;
-                const logged = currentUser && currentUser.email;
+                if (!els.navUser || !els.navUserGamertag) return;
+                const displayName = currentUser ? (currentUser.gamertag || currentUser.email) : '';
+                const logged = Boolean(displayName);
                 els.navUser.classList.toggle('hidden', !logged);
-                els.navUserEmail.textContent = logged ? currentUser.email : '';
+                els.navUserGamertag.textContent = logged ? displayName : '';
                 if (els.loginBtn) {
                     els.loginBtn.style.display = logged ? 'none' : '';
                 }
@@ -1150,6 +1155,9 @@
                 if (!els.authFeedback) return;
                 els.authFeedback.textContent = message || '';
                 els.authFeedback.classList.toggle('success', success);
+            }
+            function isValidGamertag(value) {
+                return Boolean(value) && GAMERTAG_REGEX.test(value.trim());
             }
 
             function switchAuthTab(mode) {
@@ -1457,7 +1465,9 @@
                         setToken(data.token);
                         await syncLibrary();
                         currentUser = {
+                            id: data.id,
                             email: data.email,
+                            gamertag: data.gamertag,
                             role: data.role,
                             plan: data.plan
                         };
@@ -1480,9 +1490,15 @@
                     event.preventDefault();
                     const form = event.currentTarget;
                     const email = form.email.value.trim();
+                    const gamertagInput = form.gamertag || form.querySelector('#register-gamertag');
+                    const gamertag = gamertagInput ? gamertagInput.value.trim() : '';
                     const password = form.password.value;
                     if (!email || !password) {
-                        setAuthFeedback('Preencha e-mail e senha.');
+                        setAuthFeedback('Preencha e-mail, gamertag e senha.');
+                        return;
+                    }
+                    if (!isValidGamertag(gamertag)) {
+                        setAuthFeedback('Gamertag invalida. Use entre 3 e 20 caracteres contendo letras, numeros, ".", "-" ou "_".');
                         return;
                     }
                     const submitBtn = form.querySelector('.auth-submit');
@@ -1491,7 +1507,7 @@
                         setAuthFeedback('Criando conta...');
                         await api('/auth/register', {
                             method: 'POST',
-                            body: JSON.stringify({ email, password })
+                            body: JSON.stringify({ email, password, gamertag })
                         });
                         form.reset();
                         setAuthFeedback('Conta criada! Faça login para continuar.', true);

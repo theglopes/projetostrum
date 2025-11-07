@@ -17,7 +17,7 @@ public class UserService {
     private static final Set<String> VALID_PLANS = Set.of("FREE", "PREMIUM");
 
     public List<User> listUsers() {
-        String sql = "SELECT id, email, password_hash, role, plan, created_at FROM users ORDER BY created_at DESC";
+        String sql = "SELECT id, email, gamertag, password_hash, role, plan, created_at FROM users ORDER BY created_at DESC";
         List<User> users = new ArrayList<>();
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -32,7 +32,7 @@ public class UserService {
     }
 
     public Optional<User> findById(int userId) {
-        String sql = "SELECT id, email, password_hash, role, plan, created_at FROM users WHERE id = ?";
+        String sql = "SELECT id, email, gamertag, password_hash, role, plan, created_at FROM users WHERE id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -56,7 +56,7 @@ public class UserService {
             return Optional.empty();
         }
 
-        String sql = "SELECT id, email, password_hash, role, plan, created_at FROM users WHERE email = ?";
+        String sql = "SELECT id, email, gamertag, password_hash, role, plan, created_at FROM users WHERE email = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, normalized);
@@ -166,6 +166,7 @@ public class UserService {
         return new User(
             rs.getInt("id"),
             rs.getString("email"),
+            rs.getString("gamertag"),
             rs.getString("password_hash"),
             rs.getLong("created_at"),
             rs.getString("role"),

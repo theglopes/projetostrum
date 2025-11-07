@@ -324,7 +324,7 @@
             </div>
             <div class="nav-actions">
                 <div class="nav-user hidden" id="nav-user" aria-live="polite">
-                    <span id="nav-user-email"></span>
+                    <span id="nav-user-gamertag"></span>
                     <a href="perfil.html" class="nav-action nav-profile" id="btn-profile" aria-current="page">Perfil</a>
                     <button type="button" class="nav-action nav-logout" id="btn-logout">Sair</button>
                 </div>
@@ -343,6 +343,10 @@
                 <div class="profile-card-content">
                     <h2>Dados da conta</h2>
                     <dl class="profile-info">
+                        <div class="profile-row">
+                            <dt>Gamertag</dt>
+                            <dd id="profile-gamertag">Carregando...</dd>
+                        </div>
                         <div class="profile-row">
                             <dt>E-mail</dt>
                             <dd id="profile-email">Carregando...</dd>
@@ -606,9 +610,10 @@
 
             const els = {
                 navUser: document.getElementById('nav-user'),
-                navUserEmail: document.getElementById('nav-user-email'),
+                navUserGamertag: document.getElementById('nav-user-gamertag'),
                 logoutBtn: document.getElementById('btn-logout'),
                 profileLink: document.getElementById('btn-profile'),
+                profileGamertag: document.getElementById('profile-gamertag'),
                 profileEmail: document.getElementById('profile-email'),
                 profileCreated: document.getElementById('profile-created'),
                 profileRole: document.getElementById('profile-role'),
@@ -1140,18 +1145,23 @@
             }
 
             function updateAuthUI() {
-                if (!els.navUser || !els.navUserEmail) return;
-                if (currentUser && currentUser.email) {
+                if (!els.navUser || !els.navUserGamertag) return;
+                const displayName = currentUser ? (currentUser.gamertag || currentUser.email) : '';
+                if (displayName) {
                     els.navUser.classList.remove('hidden');
-                    els.navUserEmail.textContent = currentUser.email;
+                    els.navUserGamertag.textContent = displayName;
                 } else {
                     els.navUser.classList.add('hidden');
-                    els.navUserEmail.textContent = '';
+                    els.navUserGamertag.textContent = '';
                 }
             }
 
             function renderUser(user) {
                 if (!user) return;
+                if (els.profileGamertag) {
+                    const fallback = user.email || '-';
+                    els.profileGamertag.textContent = user.gamertag || fallback;
+                }
                 if (els.profileEmail) {
                     els.profileEmail.textContent = user.email || '-';
                 }
@@ -1535,7 +1545,16 @@
                     const createdAt = unixToDateText(user.createdAt);
 
                     const emailTd = document.createElement('td');
-                    emailTd.textContent = user.email || '-';
+                    const gamertagBlock = document.createElement('div');
+                    gamertagBlock.classList.add('admin-user-gamertag');
+                    gamertagBlock.textContent = user.gamertag || user.email || '-';
+                    emailTd.appendChild(gamertagBlock);
+                    if (user.email) {
+                        const emailSmall = document.createElement('small');
+                        emailSmall.classList.add('admin-user-email');
+                        emailSmall.textContent = user.email;
+                        emailTd.appendChild(emailSmall);
+                    }
                     tr.appendChild(emailTd);
 
                     const roleTd = document.createElement('td');
@@ -1883,7 +1902,7 @@
                             select.dataset.previous = updatedRole;
                             select.value = updatedRole;
                         }
-                        if (currentUser && result.user.email && result.user.email === currentUser.email) {
+                        if (currentUser && result.user.id && currentUser.id && result.user.id === currentUser.id) {
                             currentUser = { ...currentUser, ...result.user };
                             renderUser(currentUser);
                             developerLoaded = false;
@@ -1917,7 +1936,7 @@
                             select.dataset.previous = updatedPlan;
                             select.value = updatedPlan;
                         }
-                        if (currentUser && result.user.email && result.user.email === currentUser.email) {
+                        if (currentUser && result.user.id && currentUser.id && result.user.id === currentUser.id) {
                             currentUser = { ...currentUser, ...result.user };
                             renderUser(currentUser);
                             updatePlanSection();
@@ -2093,7 +2112,9 @@
                         api('/users/library', { method: 'GET' })
                     ]);
                     currentUser = {
+                        id: userData.id,
                         email: userData.email,
+                        gamertag: userData.gamertag,
                         createdAt: userData.createdAt,
                         role: userData.role,
                         plan: userData.plan,

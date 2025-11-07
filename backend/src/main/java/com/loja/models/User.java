@@ -3,14 +3,16 @@ package com.loja.models;
 public class User {
     private int id;
     private String email;
+    private String gamertag;
     private String passwordHash;
     private long createdAt;
     private String role;
     private String plan;
 
-    public User(int id, String email, String passwordHash, long createdAt, String role, String plan) {
+    public User(int id, String email, String gamertag, String passwordHash, long createdAt, String role, String plan) {
         this.id = id;
         this.email = email;
+        this.gamertag = gamertag;
         this.passwordHash = passwordHash;
         this.createdAt = createdAt;
         this.role = role;
@@ -23,6 +25,10 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getGamertag() {
+        return gamertag;
     }
 
     public String getPasswordHash() {
